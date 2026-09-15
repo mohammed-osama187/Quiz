@@ -26,17 +26,14 @@
     <!-- Screen 1: Start -->
     <div id="start-screen" class="screen active">
       <div class="top-bar">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div class="brand-badge">⚡ مسابقة المعرفة</div>
-          <span id="db-status-badge" class="db-status-badge"></span>
-        </div>
+        <div class="brand-badge">⚡ مسابقة المعرفة</div>
         <button id="open-admin-btn" class="admin-icon-btn">
           <span>🔒 الأدمن</span>
         </button>
       </div>
 
       <h1>جاهز لاختبار معلوماتك؟</h1>
-      <p class="subtitle">10 أسئلة عشوائية متنوعة، معك 60 ثانية لجمع أعلى مجموع نقاط!</p>
+      <p class="subtitle">15 سؤالاً عشوائياً متنوعاً، معك 45 ثانية لجمع أعلى مجموع نقاط!</p>
 
       <div class="input-group">
         <label for="player-name-input">ادخل اسمك للمنافسة:</label>
@@ -48,15 +45,6 @@
       <button id="start-btn" class="btn btn-primary" disabled>
         <span>ابدأ التحدي الآن</span>
       </button>
-
-      <!-- Leaderboard -->
-      <div class="dashboard-card" id="dashboard-wrapper">
-        <div class="dashboard-header">
-          <h3><span>🏆</span> لوحة الصدارة</h3>
-          <span id="admin-status-indicator" style="font-size: 0.75rem; color: #94a3b8;">أعلى النقاط</span>
-        </div>
-        <div class="leaderboard-list" id="leaderboard-list"></div>
-      </div>
     </div>
 
     <!-- Screen 2: Quiz Play -->
@@ -68,7 +56,7 @@
         </div>
         <div class="timer-ring" id="timer-box">
           <span>⏳</span>
-          <span id="timer-display">60</span>s
+          <span id="timer-display">45</span>s
         </div>
         <div style="text-align: left;">
           <span style="font-size: 0.7rem; color: var(--text-muted); display:block;">النقاط</span>
@@ -80,7 +68,7 @@
         <div class="diff-badge" id="q-diff-badge">سهل</div>
         <div style="font-size: 0.8rem; color:#a5b4fc; font-weight:700;" id="q-points-badge">+1 نقطة</div>
         <div style="font-size: 0.8rem; color:#94a3b8; font-weight:700;">
-          السؤال <span id="current-q-num">1</span> / 10
+          السؤال <span id="current-q-num">1</span> / 15
         </div>
       </div>
 
@@ -101,7 +89,7 @@
 
         <div class="score-banner">
           <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 2px;">مجموع النقاط النهائي</div>
-          <div class="final-score" id="final-score-val">0</div>
+          <div class="final-score"><span id="final-score-val">0</span> <span style="font-size: 1.3rem; opacity: 0.75;">/ 45</span></div>
         </div>
 
         <div class="stats-card">
@@ -150,20 +138,15 @@
 
       <!-- State B: Admin Dashboard Controls -->
       <div id="admin-panel-view" style="display:none;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h2 style="font-size:1.15rem;">لوحة إدارة المسابقة</h2>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <h2 style="font-size:1.15rem;">إضافة سؤال جديد</h2>
           <button id="admin-logout-btn"
             style="background:none; border:none; color:#f87171; font-weight:700; cursor:pointer; font-size:0.82rem;">خروج</button>
         </div>
 
-        <div class="admin-tabs">
-          <button class="tab-btn active" id="tab-questions-btn">إضافة سؤال</button>
-          <button class="tab-btn" id="tab-leaderboard-btn">المتصدرين</button>
-        </div>
-
         <div id="toast-admin" class="toast-msg"></div>
 
-        <!-- Tab 1: Add Question Form -->
+        <!-- Add Question Form -->
         <div id="tab-add-q">
           <div class="input-group">
             <label>المستوى:</label>
@@ -206,16 +189,6 @@
           </div>
 
           <button id="save-new-q-btn" class="btn btn-primary" style="margin-top:4px;">حفظ السؤال</button>
-        </div>
-
-        <!-- Tab 2: Manage Leaderboard -->
-        <div id="tab-manage-lead" style="display:none;">
-          <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">انقر على زر الحذف لحذف أي متسابق:
-          </p>
-          <div class="leaderboard-list" id="admin-leaderboard-list"></div>
-          <button id="clear-all-lead-btn"
-            style="margin-top:14px; background:rgba(239, 68, 68, 0.15); border:1px solid #ef4444; color:#f87171; border-radius:10px; padding:10px; width:100%; cursor:pointer; font-weight:700; font-size:0.85rem;">مسح
-            جميع المتصدرين</button>
         </div>
       </div>
     </div>

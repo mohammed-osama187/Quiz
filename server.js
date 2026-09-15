@@ -18,13 +18,13 @@ let sseClients = [];
 function readDB() {
   try {
     if (!fs.existsSync(DB_PATH)) {
-      return { leaderboard: [], questions: { easy: [], medium: [], hard: [] } };
+      return { questions: { easy: [], medium: [], hard: [] } };
     }
     const content = fs.readFileSync(DB_PATH, 'utf-8');
     return JSON.parse(content);
   } catch (err) {
     console.error('Error reading db.json:', err);
-    return { leaderboard: [], questions: { easy: [], medium: [], hard: [] } };
+    return { questions: { easy: [], medium: [], hard: [] } };
   }
 }
 
@@ -70,44 +70,6 @@ app.get('/api/stream', (req, res) => {
   });
 });
 
-// Submit player score
-app.post('/api/score', (req, res) => {
-  const { name, score } = req.body;
-  if (!name || score === undefined) {
-    return res.status(400).json({ error: 'Name and score are required' });
-  }
-
-  const db = readDB();
-  const newEntry = {
-    id: String(Date.now() + '_' + Math.floor(Math.random() * 1000)),
-    name: name.trim(),
-    score: Number(score),
-    date: new Date().toISOString()
-  };
-
-  db.leaderboard.push(newEntry);
-  writeDB(db);
-
-  res.json({ success: true, entry: newEntry, db });
-});
-
-// Delete score by ID
-app.delete('/api/score/:id', (req, res) => {
-  const { id } = req.params;
-  const db = readDB();
-  db.leaderboard = db.leaderboard.filter(item => String(item.id) !== String(id));
-  writeDB(db);
-  res.json({ success: true, db });
-});
-
-// Clear all leaderboard scores
-app.delete('/api/leaderboard', (req, res) => {
-  const db = readDB();
-  db.leaderboard = [];
-  writeDB(db);
-  res.json({ success: true, db });
-});
-
 // Add new question
 app.post('/api/questions', (req, res) => {
   const { diff, q, opts, ans } = req.body;
@@ -116,9 +78,8 @@ app.post('/api/questions', (req, res) => {
   }
 
   const db = readDB();
-  if (!db.questions[diff]) {
-    db.questions[diff] = [];
-  }
+  if (!db.questions) db.questions = { easy: [], medium: [], hard: [] };
+  if (!db.questions[diff]) db.questions[diff] = [];
 
   db.questions[diff].push({ q, opts, ans });
   writeDB(db);

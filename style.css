@@ -232,98 +232,6 @@ p.subtitle {
   box-shadow: none;
 }
 
-/* Dashboard */
-.dashboard-card {
-  margin-top: 20px;
-  padding: 14px;
-  background: rgba(15, 23, 42, 0.55);
-  border: 1px solid var(--border-color);
-  border-radius: 14px;
-}
-
-.dashboard-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-.dashboard-header h3 {
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #e2e8f0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.leaderboard-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-height: 180px;
-  overflow-y: auto;
-  padding-left: 2px;
-}
-
-.leaderboard-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 10px;
-  border-radius: 9px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  font-size: 0.85rem;
-}
-
-.rank-badge {
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 0.75rem;
-  margin-left: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
-}
-
-.rank-1 .rank-badge {
-  background: #fbbf24;
-  color: #000;
-}
-
-.rank-2 .rank-badge {
-  background: #94a3b8;
-  color: #000;
-}
-
-.rank-3 .rank-badge {
-  background: #d97706;
-  color: #fff;
-}
-
-.del-btn {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #f87171;
-  min-width: 32px;
-  min-height: 32px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  margin-right: 6px;
-}
-
-.admin-active .del-btn {
-  display: inline-flex;
-}
-
 /* Modal Styling */
 .modal-overlay {
   position: fixed;
@@ -371,31 +279,6 @@ p.subtitle {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.admin-tabs {
-  display: flex;
-  gap: 8px;
-  margin: 14px 0;
-}
-
-.tab-btn {
-  flex: 1;
-  min-height: 42px;
-  padding: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  font-size: 0.82rem;
-}
-
-.tab-btn.active {
-  background: var(--primary);
-  color: #fff;
-  border-color: var(--primary);
 }
 
 /* Game Screen HUD */

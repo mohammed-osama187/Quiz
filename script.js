@@ -3,7 +3,7 @@
    نظام لقواعد البيانات المحلية مع تحديث فوري مباشر عبر المستخدمين
    ========================================================= */
 
-// 1. القواعد والبيانات الأساسية الافتراضية (90 سؤالاً متنوعاً)
+// 1. القواعد والبيانات الأساسية الافتراضية
 const DEFAULT_QUESTIONS = {
   easy: [
     { q: "ما هي عاصمة فرنسا؟", opts: ["روما", "مدريد", "باريس", "برلين"], ans: "باريس" },
@@ -103,13 +103,6 @@ const DEFAULT_QUESTIONS = {
   ]
 };
 
-const DEFAULT_LEADERBOARD = [
-  { id: "1", name: "أحمد كمال", score: 24 },
-  { id: "2", name: "سارة محمد", score: 20 },
-  { id: "3", name: "محمود حسن", score: 17 },
-  { id: "4", name: "نور الدين", score: 14 }
-];
-
 const POINTS = { easy: 1, medium: 3, hard: 5 };
 const LABELS = { easy: "سهل", medium: "متوسط", hard: "صعب" };
 
@@ -123,9 +116,7 @@ class DatabaseManager {
     this.eventSource = null;
     this.listeners = [];
 
-    // Local in-memory cache
     this.db = {
-      leaderboard: this.getLocalLeaderboard(),
       questions: this.getLocalQuestions()
     };
 
@@ -146,8 +137,7 @@ class DatabaseManager {
     }
 
     window.addEventListener('storage', (e) => {
-      if (e.key === 'quiz_leaderboard' || e.key === 'custom_questions_bank') {
-        this.db.leaderboard = this.getLocalLeaderboard();
+      if (e.key === 'custom_questions_bank') {
         this.db.questions = this.getLocalQuestions();
         this.notifyListeners();
       }
@@ -205,12 +195,6 @@ class DatabaseManager {
     this.listeners.forEach(cb => cb(this.db));
   }
 
-  getLocalLeaderboard() {
-    const saved = localStorage.getItem("quiz_leaderboard");
-    if (!saved) return DEFAULT_LEADERBOARD;
-    try { return JSON.parse(saved); } catch (e) { return DEFAULT_LEADERBOARD; }
-  }
-
   getLocalQuestions() {
     const saved = localStorage.getItem("custom_questions_bank");
     if (!saved) return DEFAULT_QUESTIONS;
@@ -218,7 +202,6 @@ class DatabaseManager {
   }
 
   saveToLocalStorage(db) {
-    localStorage.setItem("quiz_leaderboard", JSON.stringify(db.leaderboard));
     localStorage.setItem("custom_questions_bank", JSON.stringify(db.questions));
   }
 
@@ -228,66 +211,6 @@ class DatabaseManager {
       this.broadcastChannel.postMessage({ type: 'DB_UPDATE', db: this.db });
     }
     this.notifyListeners();
-  }
-
-  async saveScore(name, score) {
-    if (this.useServer) {
-      try {
-        const res = await fetch('/api/score', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, score })
-        });
-        if (res.ok) {
-          const result = await res.json();
-          this.db = result.db;
-          this.notifyListeners();
-          return;
-        }
-      } catch (e) { console.error(e); }
-    }
-
-    const newEntry = {
-      id: String(Date.now() + '_' + Math.floor(Math.random() * 1000)),
-      name: name.trim(),
-      score: Number(score)
-    };
-    this.db.leaderboard.push(newEntry);
-    this.broadcastLocalChange();
-  }
-
-  async deletePlayer(id) {
-    if (this.useServer) {
-      try {
-        const res = await fetch(`/api/score/${id}`, { method: 'DELETE' });
-        if (res.ok) {
-          const result = await res.json();
-          this.db = result.db;
-          this.notifyListeners();
-          return;
-        }
-      } catch (e) { console.error(e); }
-    }
-
-    this.db.leaderboard = this.db.leaderboard.filter(item => String(item.id) !== String(id));
-    this.broadcastLocalChange();
-  }
-
-  async clearAllLeaderboard() {
-    if (this.useServer) {
-      try {
-        const res = await fetch('/api/leaderboard', { method: 'DELETE' });
-        if (res.ok) {
-          const result = await res.json();
-          this.db = result.db;
-          this.notifyListeners();
-          return;
-        }
-      } catch (e) { console.error(e); }
-    }
-
-    this.db.leaderboard = [];
-    this.broadcastLocalChange();
   }
 
   async addQuestion(diff, qText, opts, correctAns) {
@@ -322,7 +245,7 @@ let currentQIndex = 0;
 let score = 0;
 let correctCount = 0;
 let wrongCount = 0;
-let remainingTime = 60;
+let remainingTime = 45;
 let timerInterval = null;
 let isBlocked = false;
 let isAdminLoggedIn = false;
@@ -333,58 +256,12 @@ const quizScreen = document.getElementById("quiz-screen");
 const resultScreen = document.getElementById("result-screen");
 const nameInput = document.getElementById("player-name-input");
 const startBtn = document.getElementById("start-btn");
-const dashboardWrapper = document.getElementById("dashboard-wrapper");
 
 nameInput.addEventListener("input", () => {
   startBtn.disabled = nameInput.value.trim().length === 0;
 });
 
-dbManager.onUpdate(() => {
-  renderLeaderboardUI();
-  if (isAdminLoggedIn) {
-    renderAdminLeaderboardUI();
-  }
-});
-
-function renderLeaderboardUI() {
-  const list = [...dbManager.db.leaderboard].sort((a, b) => b.score - a.score);
-  const container = document.getElementById("leaderboard-list");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  if (list.length === 0) {
-    container.innerHTML = `<div style="text-align:center; color:#64748b; padding:12px; font-size:0.85rem;">لا يوجد متسابقين حالياً</div>`;
-    return;
-  }
-
-  list.slice(0, 7).forEach((item, idx) => {
-    container.innerHTML += `
-      <div class="leaderboard-item rank-${idx + 1}">
-        <div style="display:flex; align-items:center;">
-          <span class="rank-badge">${idx + 1}</span>
-          <span style="font-weight:700;">${escapeHtml(item.name)}</span>
-        </div>
-        <div style="display:flex; align-items:center;">
-          <span style="color:#38bdf8; font-weight:800; font-size:0.85rem;">${item.score} نقطة</span>
-          <button class="del-btn" onclick="deletePlayer('${item.id}')">🗑️</button>
-        </div>
-      </div>
-    `;
-  });
-}
-
-function escapeHtml(text) {
-  const d = document.createElement("div");
-  d.innerText = text || "";
-  return d.innerHTML;
-}
-
-window.deletePlayer = function (id) {
-  dbManager.deletePlayer(id);
-};
-
-// 5. إعداد وتوليد الأسئلة
+// 5. إعداد وتوليد الأسئلة (5 أسئلة من كل مستوى = 15 سؤالاً)
 function pickRandom(arr, count) {
   if (!arr || arr.length === 0) return [];
   return [...arr].sort(() => 0.5 - Math.random()).slice(0, count);
@@ -396,9 +273,9 @@ function prepareQuestions() {
   const mBank = bank.medium || DEFAULT_QUESTIONS.medium;
   const hBank = bank.hard || DEFAULT_QUESTIONS.hard;
 
-  const e = pickRandom(eBank, Math.min(4, eBank.length)).map(q => ({ ...q, diff: "easy" }));
-  const m = pickRandom(mBank, Math.min(3, mBank.length)).map(q => ({ ...q, diff: "medium" }));
-  const h = pickRandom(hBank, Math.min(3, hBank.length)).map(q => ({ ...q, diff: "hard" }));
+  const e = pickRandom(eBank, Math.min(5, eBank.length)).map(q => ({ ...q, diff: "easy" }));
+  const m = pickRandom(mBank, Math.min(5, mBank.length)).map(q => ({ ...q, diff: "medium" }));
+  const h = pickRandom(hBank, Math.min(5, hBank.length)).map(q => ({ ...q, diff: "hard" }));
 
   return [...e, ...m, ...h].sort(() => 0.5 - Math.random());
 }
@@ -407,7 +284,7 @@ function prepareQuestions() {
 startBtn.addEventListener("click", () => {
   currentPlayer = nameInput.value.trim();
   document.getElementById("hud-player-name").textContent = currentPlayer;
-  score = 0; correctCount = 0; wrongCount = 0; currentQIndex = 0; remainingTime = 60;
+  score = 0; correctCount = 0; wrongCount = 0; currentQIndex = 0; remainingTime = 45;
   document.getElementById("hud-score").textContent = "0";
 
   quizQuestions = prepareQuestions();
@@ -487,12 +364,11 @@ function selectOption(selected, correct, diff, btnElement) {
 
 function finishGame() {
   clearInterval(timerInterval);
-  dbManager.saveScore(currentPlayer, score);
 
   document.getElementById("final-score-val").textContent = score;
   document.getElementById("stat-correct").textContent = correctCount;
   document.getElementById("stat-wrong").textContent = wrongCount;
-  document.getElementById("stat-time").textContent = `${60 - remainingTime}s`;
+  document.getElementById("stat-time").textContent = `${45 - remainingTime}s`;
 
   if (typeof confetti === "function" && score >= 14) {
     confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
@@ -507,7 +383,6 @@ document.getElementById("restart-btn").addEventListener("click", () => {
   startScreen.classList.add("active");
   nameInput.value = "";
   startBtn.disabled = true;
-  renderLeaderboardUI();
 });
 
 // 7. نظام التحكم بالأدمن (Admin Panel)
@@ -541,11 +416,8 @@ adminLoginBtn.addEventListener("click", () => {
     isAdminLoggedIn = true;
     adminErrorMsg.style.display = "none";
     adminPassInput.value = "";
-    dashboardWrapper.classList.add("admin-active");
-    document.getElementById("admin-status-indicator").innerHTML = `<span style="color:#34d399; font-weight:700;">🟢 مفعل</span>`;
     openAdminBtn.innerHTML = `<span>⚙️ الأدمن</span>`;
     showAdminPanel();
-    renderLeaderboardUI();
   } else {
     adminErrorMsg.style.display = "block";
   }
@@ -553,10 +425,7 @@ adminLoginBtn.addEventListener("click", () => {
 
 adminLogoutBtn.addEventListener("click", () => {
   isAdminLoggedIn = false;
-  dashboardWrapper.classList.remove("admin-active");
-  document.getElementById("admin-status-indicator").textContent = "أعلى النقاط";
   openAdminBtn.innerHTML = `<span>🔒 الأدمن</span>`;
-  renderLeaderboardUI();
   adminModal.classList.remove("open");
 });
 
@@ -568,61 +437,7 @@ function showAdminLogin() {
 function showAdminPanel() {
   adminLoginView.style.display = "none";
   adminPanelView.style.display = "block";
-  renderAdminLeaderboardUI();
 }
-
-const tabQuestionsBtn = document.getElementById("tab-questions-btn");
-const tabLeaderboardBtn = document.getElementById("tab-leaderboard-btn");
-const tabAddQ = document.getElementById("tab-add-q");
-const tabManageLead = document.getElementById("tab-manage-lead");
-
-tabQuestionsBtn.addEventListener("click", () => {
-  tabQuestionsBtn.classList.add("active");
-  tabLeaderboardBtn.classList.remove("active");
-  tabAddQ.style.display = "block";
-  tabManageLead.style.display = "none";
-});
-
-tabLeaderboardBtn.addEventListener("click", () => {
-  tabLeaderboardBtn.classList.add("active");
-  tabQuestionsBtn.classList.remove("active");
-  tabAddQ.style.display = "none";
-  tabManageLead.style.display = "block";
-  renderAdminLeaderboardUI();
-});
-
-function renderAdminLeaderboardUI() {
-  const list = [...dbManager.db.leaderboard].sort((a, b) => b.score - a.score);
-  const container = document.getElementById("admin-leaderboard-list");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  if (list.length === 0) {
-    container.innerHTML = `<div style="text-align:center; color:#64748b; padding:12px; font-size:0.85rem;">لا يوجد متسابقين</div>`;
-    return;
-  }
-
-  list.forEach((item, idx) => {
-    container.innerHTML += `
-      <div class="leaderboard-item">
-        <div>
-          <span style="color:#94a3b8; margin-left:4px;">#${idx + 1}</span>
-          <span style="font-weight:700;">${escapeHtml(item.name)}</span>
-          <span style="color:#38bdf8; margin-right:6px; font-weight:800;">(${item.score})</span>
-        </div>
-        <button class="del-btn" style="display:inline-flex;" onclick="deletePlayer('${item.id}')">🗑️</button>
-      </div>
-    `;
-  });
-}
-
-document.getElementById("clear-all-lead-btn").addEventListener("click", () => {
-  if (confirm("هل أنت متأكد من مسح جميع المتصدرين؟")) {
-    dbManager.clearAllLeaderboard();
-    showToast("تم مسح لوحة المتصدرين بالكامل!");
-  }
-});
 
 document.getElementById("save-new-q-btn").addEventListener("click", () => {
   const diff = document.getElementById("new-q-diff").value;
@@ -657,7 +472,3 @@ function showToast(msg) {
   toastAdmin.style.display = "block";
   setTimeout(() => { toastAdmin.style.display = "none"; }, 3000);
 }
-
-window.addEventListener("DOMContentLoaded", () => {
-  renderLeaderboardUI();
-});
