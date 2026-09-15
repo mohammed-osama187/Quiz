@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <title>تحدي المعرفة | Quiz Challenge</title>
+
+  <!-- Google Fonts: Cairo -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --accent: #ec4899;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --bg: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.88);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Cairo', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Mobile-First Layout: شاشات الهواتف افتراضياً */
+    body {
+      background: radial-gradient(circle at top right, #1e1b4b, #0f172a 70%),
+        radial-gradient(circle at bottom left, #311042, #0f172a 70%);
+      color: var(--text-main);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: calc(14px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));
+      overflow-x: hidden;
+    }
+
+    .blob {
+      position: fixed;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      filter: blur(65px);
+      z-index: 0;
+      opacity: 0.35;
+      pointer-events: none;
+      animation: floatSlow 12s ease-in-out infinite alternate;
+    }
+
+    .blob-1 {
+      top: -30px;
+      right: -30px;
+      background: #6366f1;
+    }
+
+    .blob-2 {
+      bottom: -30px;
+      left: -30px;
+      background: #ec4899;
+    }
+
+    @keyframes floatSlow {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      100% {
+        transform: translate(25px, 20px) scale(1.1);
+      }
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 100%;
+      background: var(--card-bg);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.1);
+      padding: 20px 16px;
+      margin: auto 0;
+      transition: all 0.3s ease;
+    }
+
+    .screen {
+      display: none;
+      opacity: 0;
+      transform: translateY(12px) scale(0.99);
+      transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .screen.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    /* Top Bar */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .brand-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px;
+      border-radius: 9999px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      color: #a5b4fc;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .admin-icon-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #cbd5e1;
+      padding: 6px 12px;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 38px;
+      white-space: nowrap;
+    }
+
+    .admin-icon-btn:active {
+      transform: scale(0.96);
+      background: rgba(99, 102, 241, 0.25);
+    }
+
+    h1 {
+      font-size: 1.45rem;
+      font-weight: 800;
+      line-height: 1.35;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #ffffff 40%, #c7d2fe 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+      text-align: right;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #cbd5e1;
+    }
+
+    /* الخط 16px يمنع المتصفح من عمل Auto-Zoom في هواتف الآيفون */
+    .input-wrapper input,
+    .input-wrapper select {
+      width: 100%;
+      min-height: 48px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255, 255, 255, 0.12);
+      background: rgba(15, 23, 42, 0.75);
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-wrapper input:focus,
+    .input-wrapper select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.35);
+    }
+
+    .input-wrapper input::placeholder {
+      color: #64748b;
+    }
+
+    .btn {
+      width: 100%;
+      min-height: 48px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.98rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      user-select: none;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: #fff;
+      box-shadow: 0 8px 20px -4px rgba(99, 102, 241, 0.5);
+    }
+
+    .btn-primary:active:not(:disabled) {
+      transform: scale(0.98);
+      box-shadow: 0 4px 12px -2px rgba(99, 102, 241, 0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      filter: grayscale(0.8);
+      box-shadow: none;
+    }
+
+    /* Dashboard */
+    .dashboard-card {
+      margin-top: 20px;
+      padding: 14px;
+      background: rgba(15, 23, 42, 0.55);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+    }
+
+    .dashboard-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .dashboard-header h3 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .leaderboard-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-left: 2px;
+    }
+
+    .leaderboard-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 0.85rem;
+    }
+
+    .rank-badge {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.75rem;
+      margin-left: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #94a3b8;
+    }
+
+    .rank-1 .rank-badge {
+      background: #fbbf24;
+      color: #000;
+    }
+
+    .rank-2 .rank-badge {
+      background: #94a3b8;
+      color: #000;
+    }
+
+    .rank-3 .rank-badge {
+      background: #d97706;
+      color: #fff;
+    }
+
+    .del-btn {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      min-width: 32px;
+      min-height: 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      margin-right: 6px;
+    }
+
+    .admin-active .del-btn {
+      display: inline-flex;
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    /* نافذة المودال تفتح من الأسفل كـ Bottom Sheet في الموبايل */
+    .modal-box {
+      width: 100%;
+      max-height: 85dvh;
+      overflow-y: auto;
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      border-radius: 20px 20px 0 0;
+      padding: 22px 16px calc(20px + env(safe-area-inset-bottom));
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: none;
+      color: #94a3b8;
+      font-size: 1.1rem;
+      min-width: 36px;
+      min-height: 36px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .admin-tabs {
+      display: flex;
+      gap: 8px;
+      margin: 14px 0;
+    }
+
+    .tab-btn {
+      flex: 1;
+      min-height: 42px;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: #94a3b8;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 0.82rem;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    /* Game Screen HUD */
+    .game-hud {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .timer-ring {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      color: #fbbf24;
+      font-weight: 800;
+      font-size: 0.95rem;
+    }
+
+    .timer-ring.pulse-danger {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.5);
+      color: #f87171;
+      animation: dangerBeat 0.8s infinite;
+    }
+
+    @keyframes dangerBeat {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.06);
+      }
+    }
+
+    .diff-badge {
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .diff-easy {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .diff-medium {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .diff-hard {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .question-text {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.5;
+      margin-bottom: 16px;
+      min-height: 50px;
+    }
+
+    .options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .option-btn {
+      min-height: 52px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1.5px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 23, 42, 0.6);
+      color: #e2e8f0;
+      font-size: 0.92rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-align: right;
+      transition: all 0.2s ease;
+    }
+
+    .option-btn:active:not(:disabled) {
+      transform: scale(0.98);
+      background: rgba(99, 102, 241, 0.15);
+    }
+
+    .option-btn.correct {
+      background: rgba(16, 185, 129, 0.25) !important;
+      border-color: #10b981 !important;
+      color: #34d399 !important;
+    }
+
+    .option-btn.incorrect {
+      background: rgba(239, 68, 68, 0.25) !important;
+      border-color: #ef4444 !important;
+      color: #f87171 !important;
+      animation: shake 0.35s ease forwards;
+    }
+
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      20%,
+      60% {
+        transform: translateX(-5px);
+      }
+
+      40%,
+      80% {
+        transform: translateX(5px);
+      }
+    }
+
+    .progress-bar-container {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 9999px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      width: 10%;
+      transition: width 0.3s ease;
+    }
+
+    /* Result */
+    .result-content {
+      text-align: center;
+    }
+
+    .trophy-icon {
+      font-size: 3rem;
+      margin-bottom: 8px;
+    }
+
+    .score-banner {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.2));
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      padding: 14px;
+      border-radius: 14px;
+      margin-bottom: 16px;
+    }
+
+    .score-banner .final-score {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #a5b4fc;
+    }
+
+    .stats-card {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .stat-item {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border-color);
+      padding: 10px 6px;
+      border-radius: 12px;
+    }
+
+    .stat-item .num {
+      font-size: 1.15rem;
+      font-weight: 800;
+    }
+
+    .stat-item .label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .toast-msg {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid #10b981;
+      color: #34d399;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      margin-bottom: 12px;
+      display: none;
+      text-align: center;
+    }
+
+    /* =========================================================
+       Media Queries للشاشات الأكبر (Tablets & Desktops)
+       ========================================================= */
+    @media (min-width: 640px) {
+      body {
+        align-items: center;
+        padding: 24px;
+      }
+
+      .blob {
+        width: 380px;
+        height: 380px;
+        filter: blur(90px);
+      }
+
+      .blob-1 {
+        top: -60px;
+        right: -60px;
+      }
+
+      .blob-2 {
+        bottom: -60px;
+        left: -60px;
+      }
+
+      .container {
+        max-width: 620px;
+        padding: 32px 28px;
+        border-radius: 24px;
+      }
+
+      h1 {
+        font-size: 1.85rem;
+      }
+
+      p.subtitle {
+        font-size: 0.95rem;
+      }
+
+      .modal-overlay {
+        align-items: center;
+        padding: 20px;
+      }
+
+      .modal-box {
+        max-width: 480px;
+        border-radius: 20px;
+        padding: 26px;
+      }
+
+      .question-text {
+        font-size: 1.2rem;
+      }
+
+      .option-btn {
+        font-size: 0.98rem;
+      }
+
+      .option-btn:hover:not(:disabled) {
+        border-color: rgba(99, 102, 241, 0.5);
+        background: rgba(99, 102, 241, 0.12);
+        transform: translateX(-4px);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <div class="container">
+    <!-- Screen 1: Start -->
+    <div id="start-screen" class="screen active">
+      <div class="top-bar">
+        <div class="brand-badge">⚡ مسابقة المعرفة</div>
+        <button id="open-admin-btn" class="admin-icon-btn">
+          <span>🔒 الأدمن</span>
+        </button>
+      </div>
+
+      <h1>جاهز لاختبار معلوماتك؟</h1>
+      <p class="subtitle">10 أسئلة عشوائية متنوعة، معك 60 ثانية لجمع أعلى مجموع نقاط!</p>
+
+      <div class="input-group">
+        <label for="player-name-input">ادخل اسمك للمنافسة:</label>
+        <div class="input-wrapper">
+          <input type="text" id="player-name-input" placeholder="اسم اللاعب (مطلوب)" autocomplete="off" />
+        </div>
+      </div>
+
+      <button id="start-btn" class="btn btn-primary" disabled>
+        <span>ابدأ التحدي الآن</span>
+      </button>
+
+      <!-- Leaderboard -->
+      <div class="dashboard-card" id="dashboard-wrapper">
+        <div class="dashboard-header">
+          <h3><span>🏆</span> لوحة الصدارة</h3>
+          <span id="admin-status-indicator" style="font-size: 0.75rem; color: #94a3b8;">أعلى النقاط</span>
+        </div>
+        <div class="leaderboard-list" id="leaderboard-list"></div>
+      </div>
+    </div>
+
+    <!-- Screen 2: Quiz Play -->
+    <div id="quiz-screen" class="screen">
+      <div class="game-hud">
+        <div>
+          <span style="font-size: 0.7rem; color: var(--text-muted); display:block;">اللاعب</span>
+          <span id="hud-player-name" style="font-weight:800; font-size:0.9rem;">--</span>
+        </div>
+        <div class="timer-ring" id="timer-box">
+          <span>⏳</span>
+          <span id="timer-display">60</span>s
+        </div>
+        <div style="text-align: left;">
+          <span style="font-size: 0.7rem; color: var(--text-muted); display:block;">النقاط</span>
+          <span id="hud-score" style="color: #38bdf8; font-weight:800; font-size:1.1rem;">0</span>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <div class="diff-badge" id="q-diff-badge">سهل</div>
+        <div style="font-size: 0.8rem; color:#a5b4fc; font-weight:700;" id="q-points-badge">+1 نقطة</div>
+        <div style="font-size: 0.8rem; color:#94a3b8; font-weight:700;">
+          السؤال <span id="current-q-num">1</span> / 10
+        </div>
+      </div>
+
+      <div class="question-text" id="question-text"></div>
+      <div class="options-grid" id="options-container"></div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progress-bar"></div>
+      </div>
+    </div>
+
+    <!-- Screen 3: Results -->
+    <div id="result-screen" class="screen">
+      <div class="result-content">
+        <div class="trophy-icon" id="result-emoji">🎉</div>
+        <h2 style="font-size: 1.5rem; margin-bottom: 4px;" id="result-title">أداء رائع!</h2>
+        <p class="subtitle">تفاصيل نتيجتك في الجولة:</p>
+
+        <div class="score-banner">
+          <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 2px;">مجموع النقاط النهائي</div>
+          <div class="final-score" id="final-score-val">0</div>
+        </div>
+
+        <div class="stats-card">
+          <div class="stat-item">
+            <div class="num" id="stat-correct" style="color: #34d399;">0</div>
+            <div class="label">إجابات صحيحة</div>
+          </div>
+          <div class="stat-item">
+            <div class="num" id="stat-wrong" style="color: #f87171;">0</div>
+            <div class="label">إجابات خاطئة</div>
+          </div>
+          <div class="stat-item">
+            <div class="num" id="stat-time">0s</div>
+            <div class="label">الوقت المستغرق</div>
+          </div>
+        </div>
+
+        <button id="restart-btn" class="btn btn-primary">
+          <span>العب مرة أخرى</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Modal -->
+  <div class="modal-overlay" id="admin-modal">
+    <div class="modal-box">
+      <button class="modal-close" id="close-modal-btn">✕</button>
+
+      <!-- State A: Password Entry -->
+      <div id="admin-login-view">
+        <h2 style="font-size:1.25rem; margin-bottom:4px;">دخول الأدمن</h2>
+        <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:14px;">ادخل الرقم السري للتحكم بالمسابقة:
+        </p>
+
+        <div class="input-group">
+          <div class="input-wrapper">
+            <input type="password" id="admin-pass-input" placeholder="الرقم السري" inputmode="numeric" />
+          </div>
+        </div>
+        <div id="admin-error-msg" style="color:#f87171; font-size:0.82rem; margin-bottom:10px; display:none;">⚠️ الرقم
+          السري غير صحيح!</div>
+
+        <button id="admin-login-btn" class="btn btn-primary">تسجيل الدخول</button>
+      </div>
+
+      <!-- State B: Admin Dashboard Controls -->
+      <div id="admin-panel-view" style="display:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h2 style="font-size:1.15rem;">لوحة إدارة المسابقة</h2>
+          <button id="admin-logout-btn"
+            style="background:none; border:none; color:#f87171; font-weight:700; cursor:pointer; font-size:0.82rem;">خروج</button>
+        </div>
+
+        <div class="admin-tabs">
+          <button class="tab-btn active" id="tab-questions-btn">إضافة سؤال</button>
+          <button class="tab-btn" id="tab-leaderboard-btn">المتصدرين</button>
+        </div>
+
+        <div id="toast-admin" class="toast-msg"></div>
+
+        <!-- Tab 1: Add Question Form -->
+        <div id="tab-add-q">
+          <div class="input-group">
+            <label>المستوى:</label>
+            <div class="input-wrapper">
+              <select id="new-q-diff">
+                <option value="easy">سهل (1 نقطة)</option>
+                <option value="medium">متوسط (3 نقاط)</option>
+                <option value="hard">صعب (5 نقاط)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>نص السؤال:</label>
+            <div class="input-wrapper">
+              <input type="text" id="new-q-text" placeholder="اكتب نص السؤال..." />
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>الخيارات الأربعة:</label>
+            <div class="input-wrapper" style="display:flex; flex-direction:column; gap:8px;">
+              <input type="text" id="new-opt-1" placeholder="الخيار الأول (أ)" />
+              <input type="text" id="new-opt-2" placeholder="الخيار الثاني (ب)" />
+              <input type="text" id="new-opt-3" placeholder="الخيار الثالث (ج)" />
+              <input type="text" id="new-opt-4" placeholder="الخيار الرابع (د)" />
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label>الإجابة الصحيحة:</label>
+            <div class="input-wrapper">
+              <select id="new-q-correct">
+                <option value="1">الخيار الأول (أ)</option>
+                <option value="2">الخيار الثاني (ب)</option>
+                <option value="3">الخيار الثالث (ج)</option>
+                <option value="4">الخيار الرابع (د)</option>
+              </select>
+            </div>
+          </div>
+
+          <button id="save-new-q-btn" class="btn btn-primary" style="margin-top:4px;">حفظ السؤال</button>
+        </div>
+
+        <!-- Tab 2: Manage Leaderboard -->
+        <div id="tab-manage-lead" style="display:none;">
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:10px;">انقر على زر الحذف لحذف أي متسابق:
+          </p>
+          <div class="leaderboard-list" id="admin-leaderboard-list"></div>
+          <button id="clear-all-lead-btn"
+            style="margin-top:14px; background:rgba(239, 68, 68, 0.15); border:1px solid #ef4444; color:#f87171; border-radius:10px; padding:10px; width:100%; cursor:pointer; font-weight:700; font-size:0.85rem;">مسح
+            جميع المتصدرين</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* 1. بنك الأسئلة الأساسي */
+    const BASE_QUESTIONS = {
+      easy: [
+        { q: "ما هي عاصمة فرنسا؟", opts: ["روما", "مدريد", "باريس", "برلين"], ans: "باريس" },
+        { q: "ما هو أسرع حيوان بري في العالم؟", opts: ["الفهد (الشيتا)", "الأسد", "الغزال", "النمر"], ans: "الفهد (الشيتا)" },
+        { q: "كم عدد قارات العالم؟", opts: ["5", "6", "7", "8"], ans: "7" },
+        { q: "ما هو الكوكب الأقرب إلى الشمس؟", opts: ["الزهرة", "عطارد", "المريخ", "الأرض"], ans: "عطارد" },
+        { q: "ما هو الغاز الذي تتنفسه الكائنات الحية للبقاء على قيد الحياة؟", opts: ["النيتروجين", "الهيدروجين", "الأكسجين", "ثاني أكسيد الكربون"], ans: "الأكسجين" },
+        { q: "أين تقع أهرامات الجيزة الشهيرة؟", opts: ["السودان", "مصر", "المكسيك", "الأردن"], ans: "مصر" },
+        { q: "ما هو العضو المسؤول عن ضخ الدم في جسم الإنسان؟", opts: ["الرئتان", "الكبد", "القلب", "الكلى"], ans: "القلب" },
+        { q: "ما هو أطول نهر في العالم؟", opts: ["نهر الأمازون", "نهر النيل", "نهر المسيسيبي", "نهر الدانوب"], ans: "نهر النيل" },
+        { q: "كم يبلغ عدد ألوان قوس قزح؟", opts: ["5", "6", "7", "8"], ans: "7" },
+        { q: "ما هو أكبر محيط في العالم من حيث المساحة؟", opts: ["المحيط الأطلسي", "المحيط الهندي", "المحيط الهادئ", "المحيط المتجمد الشمالي"], ans: "المحيط الهادئ" },
+        { q: "ما هو الحيوان الذي يُلقب بسفينة الصحراء؟", opts: ["الحصان", "الجمل", "الفيل", "الضبع"], ans: "الجمل" },
+        { q: "ما هي العملة الرسمية للولايات المتحدة الأمريكية؟", opts: ["اليورو", "الجنيه الإسترليني", "الدولار الأمريكي", "الين"], ans: "الدولار الأمريكي" },
+        { q: "في أي قارة تقع دولة البرازيل؟", opts: ["أفريقيا", "أمريكا الشمالية", "أمريكا الجنوبية", "آسيا"], ans: "أمريكا الجنوبية" },
+        { q: "ما هو الرمز الكيميائي للماء؟", opts: ["CO2", "H2O", "O2", "NaCl"], ans: "H2O" },
+        { q: "ما هي أكبر قارة في العالم من حيث المساحة؟", opts: ["أفريقيا", "آسيا", "أوروبا", "أمريكا الشمالية"], ans: "آسيا" }
+      ],
+      medium: [
+        { q: "ما هي عاصمة أستراليا الرسمية؟", opts: ["سيدني", "ملبورن", "كانبرا", "بريزبان"], ans: "كانبرا" },
+        { q: "من هو مخترع المصباح الكهربائي العملي؟", opts: ["نيكولا تسلا", "توماس إديسون", "ألكسندر غراهام بيل", "بنجامين فرانكلين"], ans: "توماس إديسون" },
+        { q: "كم عدد فقرات عنق الزرافة؟", opts: ["7 فقرات", "12 فقرة", "14 فقرة", "20 فقرة"], ans: "7 فقرات" },
+        { q: "ما هو العنصر الأكثر وفرة في الغلاف الجوي للأرض؟", opts: ["الأكسجين", "الهيدروجين", "النيتروجين", "ثاني أكسيد الكربون"], ans: "النيتروجين" },
+        { q: "في أي عام اندلعت الحرب العالمية الأولى؟", opts: ["1912", "1914", "1918", "1939"], ans: "1914" },
+        { q: "ما هو أكبر عضو داخلي في جسم الإنسان؟", opts: ["الرئة", "الكبد", "الدماغ", "المعدة"], ans: "الكبد" },
+        { q: "ما هي الدولة التي تمتلك أكبر عدد من الجزر في العالم؟", opts: ["إندونيسيا", "الفلبين", "اليونان", "السويد"], ans: "السويد" },
+        { q: "من هو مؤلف ملحمة البؤساء؟", opts: ["فيكتور هوغو", "شارل ديكنز", "دوستويفسكي", "إرنست همنغواي"], ans: "فيكتور هوغو" },
+        { q: "ما هو المعدن السائل الوحيد في درجة حرارة الغرفة؟", opts: ["الزئبق", "الجاليوم", "البروم", "السيزيوم"], ans: "الزئبق" },
+        { q: "كم عدد عظام الهيكل العظمي للإنسان البالغ؟", opts: ["180", "206", "214", "300"], ans: "206" },
+        { q: "ما هي الدولة العربية الوحيدة التي تطل على المتوسط والأطلسي معاً؟", opts: ["الجزائر", "تونس", "مصر", "المغرب"], ans: "المغرب" },
+        { q: "ما هو الكوكب المعروف بلقب 'الكوكب الأحمر'؟", opts: ["المشتري", "المريخ", "زحل", "نبتون"], ans: "المريخ" },
+        { q: "أين توجد أصغر عظمة في جسم الإنسان؟", opts: ["الأنف", "أصابع القدم", "الأذن الوسطى (الركاب)", "الحنجرة"], ans: "الأذن الوسطى (الركاب)" },
+        { q: "ما هي عاصمة كندا؟", opts: ["تورونتو", "مونتريال", "أوتاوا", "فانكوفر"], ans: "أوتاوا" },
+        { q: "ما هو الغاز الشائع استخدامه في ملء بالونات الاحتفالات؟", opts: ["الهيدروجين", "الهيليوم", "الميثان", "الآرجون"], ans: "الهيليوم" }
+      ],
+      hard: [
+        { q: "ما هي الدولة التي تمتلك أكبر عدد من المناطق الزمنية؟", opts: ["روسيا", "الولايات المتحدة", "فرنسا", "المملكة المتحدة"], ans: "فرنسا" },
+        { q: "أي من المواد التالية تُعد أصلب مادة حيوية طبيعية في جسم الإنسان؟", opts: ["عظم الفخذ", "مينا الأسنان", "العاج", "صفيحة الجمجمة"], ans: "مينا الأسنان" },
+        { q: "ما المادة المسؤولة عن إعطاء كوكب المريخ لونه الأحمر المميز؟", opts: ["كبريتيد الحديد", "أكسيد الحديد الثلاثي (الصدأ)", "نترات الصوديوم", "كربونات النحاس"], ans: "أكسيد الحديد الثلاثي (الصدأ)" },
+        { q: "ما هي أطول معركة منفردة زمنياً وقعت خلال الحرب العالمية الأولى؟", opts: ["معركة السوم", "معركة غاليبولي", "معركة فيردان", "معركة المارن الأولى"], ans: "معركة فيردان" },
+        { q: "في أي محيط تقع نقطة 'نيمو' (الأبعد عن أي يابسة على وجه الأرض)؟", opts: ["المحيط الهادئ", "المحيط الأطلسي", "المحيط الهندي", "المحيط المتجمد الجنوبي"], ans: "المحيط الهادئ" },
+        { q: "ما الحرف الإنجليزي الوحيد الذي لا يظهر إطلاقاً في الجدول الدوري؟", opts: ["Q", "J", "Z", "X"], ans: "J" },
+        { q: "أي كائن حي لديه أطول فترة حمل بين جميع الثدييات البرية؟", opts: ["الفيل الآسيوي", "الفيل الأفريقي", "الكركدن", "الحوت الأزرق"], ans: "الفيل الأفريقي" },
+        { q: "ما هو الاسم العلمي لظاهرة مواجهة القمر للأرض بنفس الوجه دائماً؟", opts: ["الانحراف المداري", "الرنين المغناطيسي", "القفل المدي (Tidal locking)", "التباطؤ النسبي"], ans: "القفل المدي (Tidal locking)" },
+        { q: "من هو أول فيلسوف يوناني اقترح دوران الكواكب حول الشمس في القرن 3 ق.م؟", opts: ["أرسطو", "بطليموس", "أريستارخوس الساموسي", "إراتوستينس"], ans: "أريستارخوس الساموسي" },
+        { q: "ما هو البحر الوحيد على الأرض الذي لا يمتلك أي سواحل شاطئية برية؟", opts: ["بحر سارجاسو", "بحر البوران", "بحر آرال", "بحر بيوفورت"], ans: "بحر سارجاسو" },
+        { q: "ما هي عملة دولة بوتان الرسمية؟", opts: ["التوغروغ", "النغولتروم (Ngultrum)", "الكيات", "الريال"], ans: "النغولتروم (Ngultrum)" },
+        { q: "ما هو نوع الشحنة الكهربائية للجسيم دون الذري 'النيوترينو'؟", opts: ["موجبة (+1)", "سالبة (-1)", "متعادلة (صفر)", "شحنة متغيرة"], ans: "متعادلة (صفر)" },
+        { q: "كم دقيقة وثانية تقريباً يستغرق ضوء الشمس ليصل إلى الأرض؟", opts: ["8 دقائق و20 ثانية", "4 دقائق و10 ثوانٍ", "12 دقيقة و5 ثوانٍ", "لحظي"], ans: "8 دقائق و20 ثانية" },
+        { q: "من العالم الذي صاغ أول جدول دوري ورتبه وفق الأوزان الذرية؟", opts: ["جون دالتون", "ديمتري مندلييف", "روبرت بويل", "هنري موزلي"], ans: "ديمتري مندلييف" },
+        { q: "ما هي العاصمة الدستورية والقضائية الرسمية لدولة بوليفيا؟", opts: ["سانتا كروز", "كوتشابامبا", "سوكري", "بوتوسي"], ans: "سوكري" }
+      ]
+    };
+
+    function getQuestionsBank() {
+      let saved = localStorage.getItem("custom_questions_bank");
+      if (!saved) {
+        localStorage.setItem("custom_questions_bank", JSON.stringify(BASE_QUESTIONS));
+        return BASE_QUESTIONS;
+      }
+      try { return JSON.parse(saved); } catch (e) { return BASE_QUESTIONS; }
+    }
+
+    const POINTS = { easy: 1, medium: 3, hard: 5 };
+    const LABELS = { easy: "سهل", medium: "متوسط", hard: "صعب" };
+
+    /* 2. المتغيرات العامة */
+    let currentPlayer = "", quizQuestions = [], currentQIndex = 0, score = 0, correctCount = 0, wrongCount = 0;
+    let remainingTime = 60, timerInterval = null, isBlocked = false;
+    let isAdminLoggedIn = false;
+
+    const DEFAULT_LEADERBOARD = [
+      { id: 1, name: "أحمد كمال", score: 24 },
+      { id: 2, name: "سارة محمد", score: 20 },
+      { id: 3, name: "محمود حسن", score: 17 },
+      { id: 4, name: "نور الدين", score: 14 }
+    ];
+
+    /* 3. عناصر الواجهة */
+    const startScreen = document.getElementById("start-screen");
+    const quizScreen = document.getElementById("quiz-screen");
+    const resultScreen = document.getElementById("result-screen");
+    const nameInput = document.getElementById("player-name-input");
+    const startBtn = document.getElementById("start-btn");
+    const dashboardWrapper = document.getElementById("dashboard-wrapper");
+
+    nameInput.addEventListener("input", () => {
+      startBtn.disabled = nameInput.value.trim().length === 0;
+    });
+
+    function getLeaderboard() {
+      let saved = localStorage.getItem("quiz_leaderboard");
+      if (!saved) {
+        saved = JSON.stringify(DEFAULT_LEADERBOARD);
+        localStorage.setItem("quiz_leaderboard", saved);
+      }
+      try {
+        const parsed = JSON.parse(saved);
+        let hasChanges = false;
+        parsed.forEach((item, index) => {
+          if (!item.id) {
+            item.id = Date.now() + "_" + index + "_" + Math.floor(Math.random() * 1000);
+            hasChanges = true;
+          }
+        });
+        if (hasChanges) {
+          localStorage.setItem("quiz_leaderboard", JSON.stringify(parsed));
+        }
+        return parsed;
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveLeaderboard(list) {
+      localStorage.setItem("quiz_leaderboard", JSON.stringify(list));
+      renderLeaderboardUI();
+      if (typeof renderAdminLeaderboardUI === "function") {
+        renderAdminLeaderboardUI();
+      }
+    }
+
+    function renderLeaderboardUI() {
+      const list = getLeaderboard().sort((a, b) => b.score - a.score);
+      const container = document.getElementById("leaderboard-list");
+      container.innerHTML = "";
+
+      if (list.length === 0) {
+        container.innerHTML = `<div style="text-align:center; color:#64748b; padding:12px; font-size:0.85rem;">لا يوجد متسابقين حالياً</div>`;
+        return;
+      }
+
+      list.slice(0, 7).forEach((item, idx) => {
+        container.innerHTML += `
+          <div class="leaderboard-item rank-${idx + 1}">
+            <div style="display:flex; align-items:center;">
+              <span class="rank-badge">${idx + 1}</span>
+              <span style="font-weight:700;">${escapeHtml(item.name)}</span>
+            </div>
+            <div style="display:flex; align-items:center;">
+              <span style="color:#38bdf8; font-weight:800; font-size:0.85rem;">${item.score} نقطة</span>
+              <button class="del-btn" onclick="deletePlayer('${item.id}')">🗑️</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    function escapeHtml(text) {
+      const d = document.createElement("div");
+      d.innerText = text;
+      return d.innerHTML;
+    }
+
+    window.deletePlayer = function (id) {
+      let list = getLeaderboard();
+      list = list.filter(item => String(item.id) !== String(id));
+      saveLeaderboard(list);
+    };
+
+    /* 4. إعداد الأسئلة */
+    function pickRandom(arr, count) {
+      return [...arr].sort(() => 0.5 - Math.random()).slice(0, count);
+    }
+
+    function prepareQuestions() {
+      const bank = getQuestionsBank();
+      const e = pickRandom(bank.easy, Math.min(4, bank.easy.length)).map(q => ({ ...q, diff: "easy" }));
+      const m = pickRandom(bank.medium, Math.min(3, bank.medium.length)).map(q => ({ ...q, diff: "medium" }));
+      const h = pickRandom(bank.hard, Math.min(3, bank.hard.length)).map(q => ({ ...q, diff: "hard" }));
+      return [...e, ...m, ...h].sort(() => 0.5 - Math.random());
+    }
+
+    /* 5. بدء اللعبة */
+    startBtn.addEventListener("click", () => {
+      currentPlayer = nameInput.value.trim();
+      document.getElementById("hud-player-name").textContent = currentPlayer;
+      score = 0; correctCount = 0; wrongCount = 0; currentQIndex = 0; remainingTime = 60;
+      document.getElementById("hud-score").textContent = "0";
+
+      quizQuestions = prepareQuestions();
+      startScreen.classList.remove("active");
+      quizScreen.classList.add("active");
+      renderQuestion();
+
+      clearInterval(timerInterval);
+      document.getElementById("timer-display").textContent = remainingTime;
+      document.getElementById("timer-box").classList.remove("pulse-danger");
+
+      timerInterval = setInterval(() => {
+        remainingTime--;
+        document.getElementById("timer-display").textContent = remainingTime;
+        if (remainingTime <= 10) document.getElementById("timer-box").classList.add("pulse-danger");
+        if (remainingTime <= 0) finishGame();
+      }, 1000);
+    });
+
+    function renderQuestion() {
+      isBlocked = false;
+      const q = quizQuestions[currentQIndex];
+      const pts = POINTS[q.diff];
+
+      document.getElementById("current-q-num").textContent = currentQIndex + 1;
+      document.getElementById("progress-bar").style.width = `${((currentQIndex + 1) / 10) * 100}%`;
+
+      const badge = document.getElementById("q-diff-badge");
+      badge.className = `diff-badge diff-${q.diff}`;
+      badge.textContent = LABELS[q.diff];
+      document.getElementById("q-points-badge").textContent = `+${pts} ${pts === 1 ? 'نقطة' : 'نقاط'}`;
+      document.getElementById("question-text").textContent = q.q;
+
+      const optsContainer = document.getElementById("options-container");
+      optsContainer.innerHTML = "";
+      const shuffledOpts = [...q.opts].sort(() => 0.5 - Math.random());
+      const letters = ["أ", "ب", "ج", "د"];
+
+      shuffledOpts.forEach((opt, idx) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.innerHTML = `<span style="opacity:0.6; min-width:20px;">${letters[idx]} -</span> <span>${opt}</span>`;
+        btn.onclick = () => selectOption(opt, q.ans, q.diff, btn);
+        optsContainer.appendChild(btn);
+      });
+    }
+
+    function selectOption(selected, correct, diff, btnElement) {
+      if (isBlocked) return;
+      isBlocked = true;
+
+      const isCorrect = selected === correct;
+      const allBtns = document.querySelectorAll(".option-btn");
+      allBtns.forEach(b => {
+        b.disabled = true;
+        if (b.querySelector("span:last-child").textContent === correct) b.classList.add("correct");
+      });
+
+      if (isCorrect) {
+        score += POINTS[diff];
+        correctCount++;
+        document.getElementById("hud-score").textContent = score;
+      } else {
+        btnElement.classList.add("incorrect");
+        wrongCount++;
+      }
+
+      setTimeout(() => {
+        currentQIndex++;
+        if (currentQIndex < quizQuestions.length && remainingTime > 0) {
+          renderQuestion();
+        } else {
+          finishGame();
+        }
+      }, 750);
+    }
+
+    function finishGame() {
+      clearInterval(timerInterval);
+      const list = getLeaderboard();
+      list.push({ id: String(Date.now() + "_" + Math.floor(Math.random() * 1000)), name: currentPlayer, score: score });
+      saveLeaderboard(list);
+
+      document.getElementById("final-score-val").textContent = score;
+      document.getElementById("stat-correct").textContent = correctCount;
+      document.getElementById("stat-wrong").textContent = wrongCount;
+      document.getElementById("stat-time").textContent = `${60 - remainingTime}s`;
+
+      if (typeof confetti === "function" && score >= 14) {
+        confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
+      }
+
+      quizScreen.classList.remove("active");
+      resultScreen.classList.add("active");
+    }
+
+    document.getElementById("restart-btn").addEventListener("click", () => {
+      resultScreen.classList.remove("active");
+      startScreen.classList.add("active");
+      nameInput.value = "";
+      startBtn.disabled = true;
+      renderLeaderboardUI();
+    });
+
+    /* 6. نظام الأدمن */
+    const adminModal = document.getElementById("admin-modal");
+    const openAdminBtn = document.getElementById("open-admin-btn");
+    const closeModalBtn = document.getElementById("close-modal-btn");
+    const adminLoginBtn = document.getElementById("admin-login-btn");
+    const adminPassInput = document.getElementById("admin-pass-input");
+    const adminErrorMsg = document.getElementById("admin-error-msg");
+    const adminLoginView = document.getElementById("admin-login-view");
+    const adminPanelView = document.getElementById("admin-panel-view");
+    const adminLogoutBtn = document.getElementById("admin-logout-btn");
+    const toastAdmin = document.getElementById("toast-admin");
+
+    openAdminBtn.addEventListener("click", () => {
+      adminModal.classList.add("open");
+      if (isAdminLoggedIn) {
+        showAdminPanel();
+      } else {
+        showAdminLogin();
+      }
+    });
+
+    closeModalBtn.addEventListener("click", () => {
+      adminModal.classList.remove("open");
+    });
+
+    adminLoginBtn.addEventListener("click", () => {
+      const pin = adminPassInput.value.trim();
+      if (pin === "1234") {
+        isAdminLoggedIn = true;
+        adminErrorMsg.style.display = "none";
+        adminPassInput.value = "";
+        dashboardWrapper.classList.add("admin-active");
+        document.getElementById("admin-status-indicator").innerHTML = `<span style="color:#34d399; font-weight:700;">🟢 مفعل</span>`;
+        openAdminBtn.innerHTML = `<span>⚙️ الأدمن</span>`;
+        showAdminPanel();
+        renderLeaderboardUI();
+      } else {
+        adminErrorMsg.style.display = "block";
+      }
+    });
+
+    adminLogoutBtn.addEventListener("click", () => {
+      isAdminLoggedIn = false;
+      dashboardWrapper.classList.remove("admin-active");
+      document.getElementById("admin-status-indicator").textContent = "أعلى النقاط";
+      openAdminBtn.innerHTML = `<span>🔒 الأدمن</span>`;
+      renderLeaderboardUI();
+      adminModal.classList.remove("open");
+    });
+
+    function showAdminLogin() {
+      adminLoginView.style.display = "block";
+      adminPanelView.style.display = "none";
+    }
+
+    function showAdminPanel() {
+      adminLoginView.style.display = "none";
+      adminPanelView.style.display = "block";
+      renderAdminLeaderboardUI();
+    }
+
+    const tabQuestionsBtn = document.getElementById("tab-questions-btn");
+    const tabLeaderboardBtn = document.getElementById("tab-leaderboard-btn");
+    const tabAddQ = document.getElementById("tab-add-q");
+    const tabManageLead = document.getElementById("tab-manage-lead");
+
+    tabQuestionsBtn.addEventListener("click", () => {
+      tabQuestionsBtn.classList.add("active");
+      tabLeaderboardBtn.classList.remove("active");
+      tabAddQ.style.display = "block";
+      tabManageLead.style.display = "none";
+    });
+
+    tabLeaderboardBtn.addEventListener("click", () => {
+      tabLeaderboardBtn.classList.add("active");
+      tabQuestionsBtn.classList.remove("active");
+      tabAddQ.style.display = "none";
+      tabManageLead.style.display = "block";
+      renderAdminLeaderboardUI();
+    });
+
+    function renderAdminLeaderboardUI() {
+      const list = getLeaderboard().sort((a, b) => b.score - a.score);
+      const container = document.getElementById("admin-leaderboard-list");
+      container.innerHTML = "";
+
+      if (list.length === 0) {
+        container.innerHTML = `<div style="text-align:center; color:#64748b; padding:12px; font-size:0.85rem;">لا يوجد متسابقين</div>`;
+        return;
+      }
+
+      list.forEach((item, idx) => {
+        container.innerHTML += `
+          <div class="leaderboard-item">
+            <div>
+              <span style="color:#94a3b8; margin-left:4px;">#${idx + 1}</span>
+              <span style="font-weight:700;">${escapeHtml(item.name)}</span>
+              <span style="color:#38bdf8; margin-right:6px; font-weight:800;">(${item.score})</span>
+            </div>
+            <button class="del-btn" style="display:inline-flex;" onclick="deletePlayer('${item.id}')">🗑️</button>
+          </div>
+        `;
+      });
+    }
+
+    document.getElementById("clear-all-lead-btn").addEventListener("click", () => {
+      if (confirm("هل أنت متأكد من مسح جميع المتصدرين؟")) {
+        saveLeaderboard([]);
+        showToast("تم مسح لوحة المتصدرين بالكامل!");
+      }
+    });
+
+    document.getElementById("save-new-q-btn").addEventListener("click", () => {
+      const diff = document.getElementById("new-q-diff").value;
+      const qText = document.getElementById("new-q-text").value.trim();
+      const o1 = document.getElementById("new-opt-1").value.trim();
+      const o2 = document.getElementById("new-opt-2").value.trim();
+      const o3 = document.getElementById("new-opt-3").value.trim();
+      const o4 = document.getElementById("new-opt-4").value.trim();
+      const correctIdx = document.getElementById("new-q-correct").value;
+
+      if (!qText || !o1 || !o2 || !o3 || !o4) {
+        alert("يرجى ملء جميع الحقول والخيارات الأربعة!");
+        return;
+      }
+
+      const opts = [o1, o2, o3, o4];
+      const correctAns = opts[parseInt(correctIdx) - 1];
+
+      const bank = getQuestionsBank();
+      bank[diff].push({
+        q: qText,
+        opts: opts,
+        ans: correctAns
+      });
+
+      localStorage.setItem("custom_questions_bank", JSON.stringify(bank));
+
+      document.getElementById("new-q-text").value = "";
+      document.getElementById("new-opt-1").value = "";
+      document.getElementById("new-opt-2").value = "";
+      document.getElementById("new-opt-3").value = "";
+      document.getElementById("new-opt-4").value = "";
+
+      showToast(`تمت إضافة السؤال بنجاح إلى قسم (${LABELS[diff]})! 🎉`);
+    });
+
+    function showToast(msg) {
+      toastAdmin.textContent = msg;
+      toastAdmin.style.display = "block";
+      setTimeout(() => { toastAdmin.style.display = "none"; }, 3000);
+    }
+
+    window.onload = () => {
+      renderLeaderboardUI();
+    };
+  </script>
+</body>
+
+</html>
