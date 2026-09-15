@@ -245,7 +245,7 @@ let currentQIndex = 0;
 let score = 0;
 let correctCount = 0;
 let wrongCount = 0;
-let remainingTime = 45;
+let remainingTime = 60;
 let timerInterval = null;
 let isBlocked = false;
 let isAdminLoggedIn = false;
@@ -284,7 +284,7 @@ function prepareQuestions() {
 startBtn.addEventListener("click", () => {
   currentPlayer = nameInput.value.trim();
   document.getElementById("hud-player-name").textContent = currentPlayer;
-  score = 0; correctCount = 0; wrongCount = 0; currentQIndex = 0; remainingTime = 45;
+  score = 0; correctCount = 0; wrongCount = 0; currentQIndex = 0; remainingTime = 60;
   document.getElementById("hud-score").textContent = "0";
 
   quizQuestions = prepareQuestions();
@@ -368,7 +368,7 @@ function finishGame() {
   document.getElementById("final-score-val").textContent = score;
   document.getElementById("stat-correct").textContent = correctCount;
   document.getElementById("stat-wrong").textContent = wrongCount;
-  document.getElementById("stat-time").textContent = `${45 - remainingTime}s`;
+  document.getElementById("stat-time").textContent = `${60 - remainingTime}s`;
 
   if (typeof confetti === "function" && score >= 14) {
     confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
