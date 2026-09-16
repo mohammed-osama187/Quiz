@@ -522,6 +522,11 @@ function finishGame() {
     confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
   }
 
+  // تسجيل نتيجة المشارك في Firebase Firestore أو المحلي فور انتهاء المسابقة
+  if (window.FirebaseService && typeof window.FirebaseService.submitScore === "function") {
+    window.FirebaseService.submitScore(currentPlayer, score);
+  }
+
   quizScreen.classList.remove("active");
   resultScreen.classList.add("active");
 }
@@ -830,3 +835,93 @@ function showToast(msg) {
   toastAdmin.style.display = "block";
   setTimeout(() => { toastAdmin.style.display = "none"; }, 3000);
 }
+
+// 8. التعامل مع نافذة لوحة المتصدرين الحية (Leaderboard Modal)
+const leaderboardModal = document.getElementById("leaderboard-modal");
+const openLeaderboardBtn = document.getElementById("open-leaderboard-btn");
+const resultLeaderboardBtn = document.getElementById("result-leaderboard-btn");
+const closeLeaderboardModalBtn = document.getElementById("close-leaderboard-modal-btn");
+const indexLeaderboardList = document.getElementById("index-leaderboard");
+const indexFirebaseAlert = document.getElementById("index-firebase-alert");
+
+const startLeaderboardList = document.getElementById("start-leaderboard-list");
+const resultLeaderboardList = document.getElementById("result-leaderboard-list");
+
+function openLeaderboardModal() {
+  if (leaderboardModal) leaderboardModal.classList.add("open");
+  initLeaderboardListener();
+}
+
+function closeLeaderboardModal() {
+  if (leaderboardModal) leaderboardModal.classList.remove("open");
+}
+
+if (openLeaderboardBtn) openLeaderboardBtn.addEventListener("click", openLeaderboardModal);
+if (resultLeaderboardBtn) resultLeaderboardBtn.addEventListener("click", openLeaderboardModal);
+if (closeLeaderboardModalBtn) closeLeaderboardModalBtn.addEventListener("click", closeLeaderboardModal);
+
+let isLeaderboardListening = false;
+
+function initLeaderboardListener() {
+  if (isLeaderboardListening) return;
+  isLeaderboardListening = true;
+
+  if (window.FirebaseService && typeof window.FirebaseService.listenToLeaderboard === "function") {
+    window.FirebaseService.listenToLeaderboard((scores, isLive) => {
+      if (indexFirebaseAlert) {
+        indexFirebaseAlert.style.display = isLive ? "none" : "block";
+      }
+      renderIndexLeaderboard(scores);
+    });
+  }
+}
+
+function generateLeaderboardHTML(scores) {
+  if (!scores || scores.length === 0) {
+    return `<div class="empty-state">لا توجد نتائج مسجلة حتى الآن! 🏆</div>`;
+  }
+
+  let html = "";
+  scores.forEach((item, index) => {
+    const rank = index + 1;
+    let rankIcon = rank;
+    let rankClass = `rank-${rank}`;
+
+    if (rank === 1) rankIcon = "🥇";
+    else if (rank === 2) rankIcon = "🥈";
+    else if (rank === 3) rankIcon = "🥉";
+
+    const safeName = (item.name || "لاعب").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    html += `
+      <li class="lb-item ${rankClass}">
+        <div class="lb-left">
+          <div class="rank-badge">${rankIcon}</div>
+          <span class="player-name">${safeName}</span>
+        </div>
+        <div class="score-badge">${item.score} نقطة</div>
+      </li>
+    `;
+  });
+
+  return html;
+}
+
+function renderIndexLeaderboard(scores) {
+  const html = generateLeaderboardHTML(scores);
+
+  if (indexLeaderboardList) indexLeaderboardList.innerHTML = html;
+  if (startLeaderboardList) startLeaderboardList.innerHTML = html;
+  if (resultLeaderboardList) resultLeaderboardList.innerHTML = html;
+}
+
+// بدء التحديث الحي للوحة المتصدرين فور تحميل الصفحة
+document.addEventListener("DOMContentLoaded", () => {
+  initLeaderboardListener();
+});
+// تشغيل احتياطي مباشر في حال كانت DOM محملة بالفعل
+setTimeout(() => {
+  initLeaderboardListener();
+}, 200);
+
+

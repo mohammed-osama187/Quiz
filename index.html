@@ -30,9 +30,14 @@
           <img src="./logo-union.png" alt="الشعار" class="app-logo-sm" />
           <span>مسابقة المعرفة</span>
         </div>
-        <button id="open-admin-btn" class="admin-icon-btn">
-          <span>🔒 الأدمن</span>
-        </button>
+        <div style="display:flex; gap:8px;">
+          <button id="open-leaderboard-btn" class="admin-icon-btn" style="background: rgba(99, 102, 241, 0.2); border-color: rgba(99, 102, 241, 0.4); color: #c7d2fe;">
+            <span>🏆 المتصدرون</span>
+          </button>
+          <button id="open-admin-btn" class="admin-icon-btn">
+            <span>🔒 الأدمن</span>
+          </button>
+        </div>
       </div>
 
       <div class="logo-hero-container">
@@ -54,6 +59,23 @@
       <button id="start-btn" class="btn btn-primary" disabled>
         <span>ابدأ التحدي الآن</span>
       </button>
+
+      <!-- Live Leaderboard Embedded UI Section -->
+      <div class="main-leaderboard-card">
+        <div class="lb-card-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.1rem;">🏆</span>
+            <h3 style="font-size:0.92rem; font-weight:800; margin:0; color:#f8fafc;">لوحة المتصدرين الحية</h3>
+          </div>
+          <div class="live-badge-sm">
+            <span class="live-dot-sm"></span>
+            <span>مباشر</span>
+          </div>
+        </div>
+        <ul id="start-leaderboard-list" class="leaderboard-list compact">
+          <div class="empty-state">جارِ تحميل المتصدرين... ⏳</div>
+        </ul>
+      </div>
     </div>
 
     <!-- Screen 2: Quiz Play -->
@@ -119,10 +141,49 @@
           </div>
         </div>
 
-        <button id="restart-btn" class="btn btn-primary">
-          <span>العب مرة أخرى</span>
-        </button>
+        <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap;">
+          <button id="restart-btn" class="btn btn-primary" style="flex:1;">
+            <span>العب مرة أخرى</span>
+          </button>
+          <button id="result-leaderboard-btn" class="btn" style="flex:1; background:rgba(99, 102, 241, 0.2); color:#c7d2fe; border:1px solid rgba(99, 102, 241, 0.4);">
+            <span>🏆 المتصدرون</span>
+          </button>
+        </div>
+
+        <!-- Live Leaderboard Embedded UI Section on Result Screen -->
+        <div class="main-leaderboard-card" style="margin-top:16px;">
+          <div class="lb-card-header">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="font-size:1.1rem;">👑</span>
+              <h3 style="font-size:0.92rem; font-weight:800; margin:0; color:#f8fafc;">ترتيب المتنافسين الحية</h3>
+            </div>
+            <div class="live-badge-sm">
+              <span class="live-dot-sm"></span>
+              <span>مباشر</span>
+            </div>
+          </div>
+          <ul id="result-leaderboard-list" class="leaderboard-list compact">
+            <div class="empty-state">جارِ تحميل المتصدرين... ⏳</div>
+          </ul>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Live Leaderboard Modal -->
+  <div class="modal-overlay" id="leaderboard-modal">
+    <div class="modal-box" style="max-width: 580px;">
+      <button class="modal-close" id="close-leaderboard-modal-btn">✕</button>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:10px;">
+        <h2 style="font-size:1.2rem; display:flex; align-items:center; gap:8px;">🏆 لوحة المتصدرين الحية</h2>
+        <a href="dashboard.html" target="_blank" style="font-size:0.78rem; color:#a5b4fc; text-decoration:none; font-weight:700;">🔗 الشاشة الكاملة</a>
+      </div>
+      <div id="index-firebase-alert" class="config-alert" style="display:none; font-size:0.8rem; margin-bottom:12px; padding:10px 14px; background:rgba(245, 158, 11, 0.12); border:1px solid rgba(245, 158, 11, 0.3); color:#fbbf24; border-radius:10px;">
+        <span>⚠️ يتم العرض من التخزين المحلي (ضع `firebaseConfig` لتفعيل Firestore Live).</span>
+      </div>
+      <ul id="index-leaderboard" class="leaderboard-list" style="max-height: 380px; overflow-y: auto; padding-left:4px;">
+        <div class="empty-state">جارِ تحميل نتائج المتصدرين... ⏳</div>
+      </ul>
     </div>
   </div>
 
@@ -315,6 +376,8 @@
     </div>
   </div>
 
+  <!-- Firebase Service (Modular SDK v10 CDN) -->
+  <script type="module" src="firebase-service.js"></script>
   <!-- Custom Logic -->
   <script src="script.js"></script>
 </body>
