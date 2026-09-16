@@ -152,7 +152,8 @@
       <div id="admin-panel-view" style="display:none;">
         <div class="admin-nav-bar">
           <div class="admin-tabs">
-            <button id="tab-btn-settings" class="admin-tab-btn active">⚙️ إعدادات المسابقة</button>
+            <button id="tab-btn-settings" class="admin-tab-btn active">⚙️ الإعدادات</button>
+            <button id="tab-btn-manage-q" class="admin-tab-btn">📋 الأسئلة</button>
             <button id="tab-btn-add-q" class="admin-tab-btn">➕ إضافة سؤال</button>
           </div>
           <button id="admin-logout-btn" class="admin-logout-link">خروج</button>
@@ -198,7 +199,22 @@
           </button>
         </div>
 
-        <!-- Tab 2: Add Question Form -->
+        <!-- Tab 2: Manage Questions List -->
+        <div id="tab-manage-q-view" style="display:none;">
+          <div class="q-filter-bar">
+            <div class="filter-buttons">
+              <button class="filter-btn active" data-filter="all">الكل</button>
+              <button class="filter-btn" data-filter="easy">🟢 سهل</button>
+              <button class="filter-btn" data-filter="medium">🟡 متوسط</button>
+              <button class="filter-btn" data-filter="hard">🔴 صعب</button>
+            </div>
+            <span class="q-count-badge" id="manage-q-count">0 سؤال</span>
+          </div>
+
+          <div id="admin-questions-list" class="admin-q-list"></div>
+        </div>
+
+        <!-- Tab 3: Add Question Form -->
         <div id="tab-add-q-view" style="display:none;">
           <div class="input-group">
             <label>المستوى:</label>
@@ -242,6 +258,59 @@
 
           <button id="save-new-q-btn" class="btn btn-primary" style="margin-top:4px;">حفظ السؤال</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Editing Question -->
+  <div class="modal-overlay" id="edit-q-modal">
+    <div class="modal-box" style="max-width: 450px;">
+      <button class="modal-close" id="close-edit-modal-btn">✕</button>
+      <h2 style="font-size:1.15rem; margin-bottom:14px;">✏️ تعديل السؤال</h2>
+
+      <div class="input-group">
+        <label>المستوى:</label>
+        <div class="input-wrapper">
+          <select id="edit-q-diff">
+            <option value="easy">سهل (1 نقطة)</option>
+            <option value="medium">متوسط (3 نقاط)</option>
+            <option value="hard">صعب (5 نقاط)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>نص السؤال:</label>
+        <div class="input-wrapper">
+          <input type="text" id="edit-q-text" placeholder="نص السؤال..." />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>الخيارات الأربعة:</label>
+        <div class="input-wrapper" style="display:flex; flex-direction:column; gap:8px;">
+          <input type="text" id="edit-opt-1" placeholder="الخيار الأول (أ)" />
+          <input type="text" id="edit-opt-2" placeholder="الخيار الثاني (ب)" />
+          <input type="text" id="edit-opt-3" placeholder="الخيار الثالث (ج)" />
+          <input type="text" id="edit-opt-4" placeholder="الخيار الرابع (د)" />
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label>الإجابة الصحيحة:</label>
+        <div class="input-wrapper">
+          <select id="edit-q-correct">
+            <option value="1">الخيار الأول (أ)</option>
+            <option value="2">الخيار الثاني (ب)</option>
+            <option value="3">الخيار الثالث (ج)</option>
+            <option value="4">الخيار الرابع (د)</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-top:14px;">
+        <button id="save-edit-q-btn" class="btn btn-primary">حفظ التغييرات</button>
+        <button id="cancel-edit-q-btn" class="btn" style="background:rgba(255,255,255,0.08); color:#cbd5e1;">إلغاء</button>
       </div>
     </div>
   </div>

@@ -90,6 +90,40 @@ app.post('/api/questions', (req, res) => {
   res.json({ success: true, db });
 });
 
+// Edit existing question
+app.put('/api/questions', (req, res) => {
+  const { diff, index, q, opts, ans } = req.body;
+  if (!diff || index === undefined || !q || !opts || !ans) {
+    return res.status(400).json({ error: 'All parameters are required' });
+  }
+
+  const db = readDB();
+  if (db.questions && db.questions[diff] && db.questions[diff][index] !== undefined) {
+    db.questions[diff][index] = { q, opts, ans };
+    writeDB(db);
+    res.json({ success: true, db });
+  } else {
+    res.status(404).json({ error: 'Question not found' });
+  }
+});
+
+// Delete question
+app.delete('/api/questions', (req, res) => {
+  const { diff, index } = req.body;
+  if (!diff || index === undefined) {
+    return res.status(400).json({ error: 'diff and index are required' });
+  }
+
+  const db = readDB();
+  if (db.questions && db.questions[diff] && db.questions[diff][index] !== undefined) {
+    db.questions[diff].splice(index, 1);
+    writeDB(db);
+    res.json({ success: true, db });
+  } else {
+    res.status(404).json({ error: 'Question not found' });
+  }
+});
+
 // Update settings (Time limit, Question count & distribution)
 app.post('/api/settings', (req, res) => {
   const { timeLimit, easyCount, mediumCount, hardCount } = req.body;

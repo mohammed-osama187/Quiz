@@ -253,6 +253,52 @@ class DatabaseManager {
     this.db.settings = { ...this.db.settings, ...newSettings };
     this.broadcastLocalChange();
   }
+
+  async editQuestion(diff, index, qText, opts, correctAns) {
+    if (this.useServer) {
+      try {
+        const res = await fetch('/api/questions', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ diff, index, q: qText, opts, ans: correctAns })
+        });
+        if (res.ok) {
+          const result = await res.json();
+          this.db = result.db;
+          this.notifyListeners();
+          return;
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    if (this.db.questions && this.db.questions[diff] && this.db.questions[diff][index] !== undefined) {
+      this.db.questions[diff][index] = { q: qText, opts, ans: correctAns };
+      this.broadcastLocalChange();
+    }
+  }
+
+  async deleteQuestion(diff, index) {
+    if (this.useServer) {
+      try {
+        const res = await fetch('/api/questions', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ diff, index })
+        });
+        if (res.ok) {
+          const result = await res.json();
+          this.db = result.db;
+          this.notifyListeners();
+          return;
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    if (this.db.questions && this.db.questions[diff] && this.db.questions[diff][index] !== undefined) {
+      this.db.questions[diff].splice(index, 1);
+      this.broadcastLocalChange();
+    }
+  }
 }
 
 // 3. تهيئة التطبيق
@@ -501,25 +547,180 @@ const toastAdmin = document.getElementById("toast-admin");
 
 // Admin Tabs Elements
 const tabBtnSettings = document.getElementById("tab-btn-settings");
+const tabBtnManageQ = document.getElementById("tab-btn-manage-q");
 const tabBtnAddQ = document.getElementById("tab-btn-add-q");
 const tabSettingsView = document.getElementById("tab-settings-view");
+const tabManageQView = document.getElementById("tab-manage-q-view");
 const tabAddQView = document.getElementById("tab-add-q-view");
 
-if (tabBtnSettings && tabBtnAddQ) {
-  tabBtnSettings.addEventListener("click", () => {
-    tabBtnSettings.classList.add("active");
-    tabBtnAddQ.classList.remove("active");
-    tabSettingsView.style.display = "block";
-    tabAddQView.style.display = "none";
+let currentFilter = "all";
+
+function switchTab(tabName) {
+  [tabBtnSettings, tabBtnManageQ, tabBtnAddQ].forEach(btn => btn?.classList.remove("active"));
+  [tabSettingsView, tabManageQView, tabAddQView].forEach(v => v ? v.style.display = "none" : null);
+
+  if (tabName === "settings") {
+    tabBtnSettings?.classList.add("active");
+    if (tabSettingsView) tabSettingsView.style.display = "block";
+  } else if (tabName === "manage") {
+    tabBtnManageQ?.classList.add("active");
+    if (tabManageQView) tabManageQView.style.display = "block";
+    renderAdminQuestionsList(currentFilter);
+  } else if (tabName === "add") {
+    tabBtnAddQ?.classList.add("active");
+    if (tabAddQView) tabAddQView.style.display = "block";
+  }
+}
+
+if (tabBtnSettings) tabBtnSettings.addEventListener("click", () => switchTab("settings"));
+if (tabBtnManageQ) tabBtnManageQ.addEventListener("click", () => switchTab("manage"));
+if (tabBtnAddQ) tabBtnAddQ.addEventListener("click", () => switchTab("add"));
+
+// Question List Filter Buttons
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentFilter = btn.dataset.filter;
+    renderAdminQuestionsList(currentFilter);
+  });
+});
+
+// Render Admin Questions List
+function renderAdminQuestionsList(filterDiff = "all") {
+  const container = document.getElementById("admin-questions-list");
+  if (!container) return;
+
+  const bank = dbManager.db.questions || DEFAULT_QUESTIONS;
+  let items = [];
+
+  ["easy", "medium", "hard"].forEach(diff => {
+    if (filterDiff === "all" || filterDiff === diff) {
+      const qList = bank[diff] || [];
+      qList.forEach((q, index) => {
+        items.push({ ...q, diff, originalIndex: index });
+      });
+    }
   });
 
-  tabBtnAddQ.addEventListener("click", () => {
-    tabBtnAddQ.classList.add("active");
-    tabBtnSettings.classList.remove("active");
-    tabSettingsView.style.display = "none";
-    tabAddQView.style.display = "block";
+  const countBadge = document.getElementById("manage-q-count");
+  if (countBadge) countBadge.textContent = `${items.length} سؤال`;
+  container.innerHTML = "";
+
+  if (items.length === 0) {
+    container.innerHTML = `<div style="text-align:center; padding:24px; color:var(--text-muted); font-size:0.85rem;">لا توجد أسئلة في هذا القسم!</div>`;
+    return;
+  }
+
+  items.forEach((item) => {
+    const card = document.createElement("div");
+    card.className = "q-admin-card";
+
+    const badgeClass = `diff-${item.diff}`;
+    const badgeText = LABELS[item.diff];
+
+    let optsHTML = item.opts.map(opt => {
+      const isAns = opt === item.ans;
+      return `<div class="q-admin-opt ${isAns ? 'is-ans' : ''}">${isAns ? '✓ ' : ''}${opt}</div>`;
+    }).join("");
+
+    card.innerHTML = `
+      <div class="q-admin-header">
+        <span class="diff-badge ${badgeClass}">${badgeText}</span>
+        <span class="q-admin-title">${item.q}</span>
+      </div>
+      <div class="q-admin-opts">${optsHTML}</div>
+      <div class="q-admin-actions">
+        <button class="q-action-btn btn-edit">✏️ تعديل</button>
+        <button class="q-action-btn btn-delete">🗑️ حذف</button>
+      </div>
+    `;
+
+    card.querySelector(".btn-edit").onclick = () => openEditQuestionModal(item.diff, item.originalIndex, item);
+    card.querySelector(".btn-delete").onclick = () => confirmDeleteQuestion(item.diff, item.originalIndex);
+
+    container.appendChild(card);
   });
 }
+
+// Edit Question Modal Logic
+let editingQuestionRef = null;
+
+const editQModal = document.getElementById("edit-q-modal");
+const closeEditModalBtn = document.getElementById("close-edit-modal-btn");
+const cancelEditQBtn = document.getElementById("cancel-edit-q-btn");
+const saveEditQBtn = document.getElementById("save-edit-q-btn");
+
+function openEditQuestionModal(diff, index, item) {
+  editingQuestionRef = { diff, index };
+  document.getElementById("edit-q-diff").value = diff;
+  document.getElementById("edit-q-text").value = item.q;
+  document.getElementById("edit-opt-1").value = item.opts[0] || "";
+  document.getElementById("edit-opt-2").value = item.opts[1] || "";
+  document.getElementById("edit-opt-3").value = item.opts[2] || "";
+  document.getElementById("edit-opt-4").value = item.opts[3] || "";
+
+  let correctIndex = item.opts.indexOf(item.ans);
+  if (correctIndex === -1) correctIndex = 0;
+  document.getElementById("edit-q-correct").value = String(correctIndex + 1);
+
+  editQModal.classList.add("open");
+}
+
+function closeEditQuestionModal() {
+  editQModal.classList.remove("open");
+  editingQuestionRef = null;
+}
+
+if (closeEditModalBtn) closeEditModalBtn.onclick = closeEditQuestionModal;
+if (cancelEditQBtn) cancelEditQBtn.onclick = closeEditQuestionModal;
+
+if (saveEditQBtn) {
+  saveEditQBtn.onclick = async () => {
+    if (!editingQuestionRef) return;
+    const diff = document.getElementById("edit-q-diff").value;
+    const qText = document.getElementById("edit-q-text").value.trim();
+    const o1 = document.getElementById("edit-opt-1").value.trim();
+    const o2 = document.getElementById("edit-opt-2").value.trim();
+    const o3 = document.getElementById("edit-opt-3").value.trim();
+    const o4 = document.getElementById("edit-opt-4").value.trim();
+    const correctIdx = document.getElementById("edit-q-correct").value;
+
+    if (!qText || !o1 || !o2 || !o3 || !o4) {
+      alert("يرجى ملء جميع الحقول والخيارات الأربعة!");
+      return;
+    }
+
+    const opts = [o1, o2, o3, o4];
+    const correctAns = opts[parseInt(correctIdx) - 1];
+
+    if (diff !== editingQuestionRef.diff) {
+      await dbManager.deleteQuestion(editingQuestionRef.diff, editingQuestionRef.index);
+      await dbManager.addQuestion(diff, qText, opts, correctAns);
+    } else {
+      await dbManager.editQuestion(diff, editingQuestionRef.index, qText, opts, correctAns);
+    }
+
+    closeEditQuestionModal();
+    renderAdminQuestionsList(currentFilter);
+    showToast("تم تعديل السؤال بنجاح! ✏️🎉");
+  };
+}
+
+async function confirmDeleteQuestion(diff, index) {
+  if (confirm("هل أنت تأكد من رغبتك في حذف هذا السؤال؟")) {
+    await dbManager.deleteQuestion(diff, index);
+    renderAdminQuestionsList(currentFilter);
+    showToast("تم حذف السؤال بنجاح! 🗑️");
+  }
+}
+
+// Update DB callback listener to re-render questions list if open
+dbManager.onUpdate(() => {
+  if (tabManageQView && tabManageQView.style.display !== "none") {
+    renderAdminQuestionsList(currentFilter);
+  }
+});
 
 // Re-calculate summary on setting input change
 ["set-time-limit", "set-easy-count", "set-medium-count", "set-hard-count"].forEach(id => {
@@ -596,7 +797,7 @@ function showAdminPanel() {
   applySettingsToUI();
 }
 
-document.getElementById("save-new-q-btn").addEventListener("click", () => {
+document.getElementById("save-new-q-btn").addEventListener("click", async () => {
   const diff = document.getElementById("new-q-diff").value;
   const qText = document.getElementById("new-q-text").value.trim();
   const o1 = document.getElementById("new-opt-1").value.trim();
@@ -613,7 +814,7 @@ document.getElementById("save-new-q-btn").addEventListener("click", () => {
   const opts = [o1, o2, o3, o4];
   const correctAns = opts[parseInt(correctIdx) - 1];
 
-  dbManager.addQuestion(diff, qText, opts, correctAns);
+  await dbManager.addQuestion(diff, qText, opts, correctAns);
 
   document.getElementById("new-q-text").value = "";
   document.getElementById("new-opt-1").value = "";
