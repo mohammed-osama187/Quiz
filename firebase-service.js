@@ -8,6 +8,8 @@ import {
   getFirestore,
   collection,
   addDoc,
+  deleteDoc,
+  doc,
   onSnapshot,
   query,
   orderBy,
@@ -76,8 +78,28 @@ export async function submitScore(playerName, playerScore) {
   }
 }
 
-// 3. الاستماع للتغيرات في لوحة المتصدرين لحظة بلحظة (Live Leaderboard)
-export function listenToLeaderboard(callback, maxItems = 25) {
+// 3. حذف نتيجة لاعب من قاعدة البيانات Firestore / التخزين المحلي
+export async function deleteScore(scoreId) {
+  if (!scoreId) return false;
+
+  if (db && isFirebaseConfigured()) {
+    try {
+      await deleteDoc(doc(db, "scores", scoreId));
+      console.log(`✅ تم حذف النتيجة (${scoreId}) من Firebase Firestore بنجاح!`);
+      return true;
+    } catch (e) {
+      console.error("❌ خطأ في حذف النتيجة من Firebase: ", e);
+      deleteLocalFallbackScore(scoreId);
+      return false;
+    }
+  } else {
+    deleteLocalFallbackScore(scoreId);
+    return true;
+  }
+}
+
+// 4. الاستماع للتغيرات في لوحة المتصدرين لحظة بلحظة (Live Leaderboard)
+export function listenToLeaderboard(callback, maxItems = 50) {
   if (db && isFirebaseConfigured()) {
     try {
       const q = query(
@@ -134,22 +156,34 @@ function saveLocalFallbackScore(name, score) {
   try {
     const list = getLocalFallbackScores();
     list.push({
-      id: "local_" + Date.now(),
+      id: "local_" + Date.now() + "_" + Math.random().toString(36).substring(2, 6),
       name: name,
       score: Number(score) || 0,
       timestamp: new Date().toISOString()
     });
     list.sort((a, b) => b.score - a.score);
-    localStorage.setItem("quiz_local_leaderboard", JSON.stringify(list.slice(0, 50)));
+    localStorage.setItem("quiz_local_leaderboard", JSON.stringify(list.slice(0, 100)));
     window.dispatchEvent(new Event("localScoresChanged"));
   } catch (e) {
     console.error("Local save error:", e);
   }
 }
 
+function deleteLocalFallbackScore(scoreId) {
+  try {
+    let list = getLocalFallbackScores();
+    list = list.filter(item => item.id !== scoreId);
+    localStorage.setItem("quiz_local_leaderboard", JSON.stringify(list));
+    window.dispatchEvent(new Event("localScoresChanged"));
+  } catch (e) {
+    console.error("Local delete error:", e);
+  }
+}
+
 // تصدير كائن عام لتوفير التوافق المباشر للـ script العادي
 window.FirebaseService = {
   submitScore,
+  deleteScore,
   listenToLeaderboard,
   isFirebaseConfigured,
   firebaseConfig

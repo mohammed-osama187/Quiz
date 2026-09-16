@@ -554,15 +554,18 @@ const toastAdmin = document.getElementById("toast-admin");
 const tabBtnSettings = document.getElementById("tab-btn-settings");
 const tabBtnManageQ = document.getElementById("tab-btn-manage-q");
 const tabBtnAddQ = document.getElementById("tab-btn-add-q");
+const tabBtnManageScores = document.getElementById("tab-btn-manage-scores");
 const tabSettingsView = document.getElementById("tab-settings-view");
 const tabManageQView = document.getElementById("tab-manage-q-view");
 const tabAddQView = document.getElementById("tab-add-q-view");
+const tabManageScoresView = document.getElementById("tab-manage-scores-view");
 
 let currentFilter = "all";
+let latestScoresData = [];
 
 function switchTab(tabName) {
-  [tabBtnSettings, tabBtnManageQ, tabBtnAddQ].forEach(btn => btn?.classList.remove("active"));
-  [tabSettingsView, tabManageQView, tabAddQView].forEach(v => v ? v.style.display = "none" : null);
+  [tabBtnSettings, tabBtnManageQ, tabBtnAddQ, tabBtnManageScores].forEach(btn => btn?.classList.remove("active"));
+  [tabSettingsView, tabManageQView, tabAddQView, tabManageScoresView].forEach(v => v ? v.style.display = "none" : null);
 
   if (tabName === "settings") {
     tabBtnSettings?.classList.add("active");
@@ -574,12 +577,17 @@ function switchTab(tabName) {
   } else if (tabName === "add") {
     tabBtnAddQ?.classList.add("active");
     if (tabAddQView) tabAddQView.style.display = "block";
+  } else if (tabName === "scores") {
+    tabBtnManageScores?.classList.add("active");
+    if (tabManageScoresView) tabManageScoresView.style.display = "block";
+    renderAdminScoresList(latestScoresData);
   }
 }
 
 if (tabBtnSettings) tabBtnSettings.addEventListener("click", () => switchTab("settings"));
 if (tabBtnManageQ) tabBtnManageQ.addEventListener("click", () => switchTab("manage"));
 if (tabBtnAddQ) tabBtnAddQ.addEventListener("click", () => switchTab("add"));
+if (tabBtnManageScores) tabBtnManageScores.addEventListener("click", () => switchTab("scores"));
 
 // Question List Filter Buttons
 document.querySelectorAll(".filter-btn").forEach(btn => {
@@ -868,10 +876,14 @@ function initLeaderboardListener() {
 
   if (window.FirebaseService && typeof window.FirebaseService.listenToLeaderboard === "function") {
     window.FirebaseService.listenToLeaderboard((scores, isLive) => {
+      latestScoresData = scores || [];
       if (indexFirebaseAlert) {
         indexFirebaseAlert.style.display = isLive ? "none" : "block";
       }
-      renderIndexLeaderboard(scores);
+      renderIndexLeaderboard(latestScoresData);
+      if (tabManageScoresView && tabManageScoresView.style.display !== "none") {
+        renderAdminScoresList(latestScoresData);
+      }
     });
   }
 }
@@ -913,6 +925,66 @@ function renderIndexLeaderboard(scores) {
   if (indexLeaderboardList) indexLeaderboardList.innerHTML = html;
   if (startLeaderboardList) startLeaderboardList.innerHTML = html;
   if (resultLeaderboardList) resultLeaderboardList.innerHTML = html;
+}
+
+function renderAdminScoresList(scores) {
+  const container = document.getElementById("admin-scores-list");
+  const countBadge = document.getElementById("admin-scores-count");
+  if (!container) return;
+
+  if (countBadge) countBadge.textContent = `${scores ? scores.length : 0} نتيجة`;
+  container.innerHTML = "";
+
+  if (!scores || scores.length === 0) {
+    container.innerHTML = `<div class="empty-state">لا توجد نتائج مسجلة حتى الآن! 🏆</div>`;
+    return;
+  }
+
+  scores.forEach((item, index) => {
+    const rank = index + 1;
+    let rankIcon = rank;
+    let rankClass = `rank-${rank}`;
+
+    if (rank === 1) rankIcon = "🥇";
+    else if (rank === 2) rankIcon = "🥈";
+    else if (rank === 3) rankIcon = "🥉";
+
+    const safeName = (item.name || "لاعب").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const li = document.createElement("li");
+    li.className = `lb-item ${rankClass}`;
+    li.style.display = "flex";
+    li.style.justifyContent = "space-between";
+    li.style.alignItems = "center";
+
+    li.innerHTML = `
+      <div class="lb-left">
+        <div class="rank-badge">${rankIcon}</div>
+        <span class="player-name">${safeName}</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="score-badge">${item.score} نقطة</div>
+        <button class="q-action-btn btn-delete btn-delete-score" title="حذف النتيجة">🗑️ حذف</button>
+      </div>
+    `;
+
+    const delBtn = li.querySelector(".btn-delete-score");
+    if (delBtn) {
+      delBtn.onclick = async () => {
+        if (confirm(`هل أنت تأكد من رغبتك في حذف نتيجة المشارك "${item.name}"؟`)) {
+          if (window.FirebaseService && typeof window.FirebaseService.deleteScore === "function") {
+            const success = await window.FirebaseService.deleteScore(item.id);
+            if (success) {
+              showToast(`تم حذف نتيجة (${item.name}) بنجاح! 🗑️`);
+            } else {
+              alert("حدث خطأ أثناء محاولة حذف النتيجة.");
+            }
+          }
+        }
+      };
+    }
+
+    container.appendChild(li);
+  });
 }
 
 // بدء التحديث الحي للوحة المتصدرين فور تحميل الصفحة

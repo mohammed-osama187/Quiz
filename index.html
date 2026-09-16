@@ -216,6 +216,7 @@
             <button id="tab-btn-settings" class="admin-tab-btn active">⚙️ الإعدادات</button>
             <button id="tab-btn-manage-q" class="admin-tab-btn">📋 الأسئلة</button>
             <button id="tab-btn-add-q" class="admin-tab-btn">➕ إضافة سؤال</button>
+            <button id="tab-btn-manage-scores" class="admin-tab-btn">🏆 النتائج والمتصدرون</button>
           </div>
           <button id="admin-logout-btn" class="admin-logout-link">خروج</button>
         </div>
@@ -318,6 +319,18 @@
           </div>
 
           <button id="save-new-q-btn" class="btn btn-primary" style="margin-top:4px;">حفظ السؤال</button>
+        </div>
+
+        <!-- Tab 4: Manage Scores (Delete Participants) -->
+        <div id="tab-manage-scores-view" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.08);">
+            <div style="font-size:0.85rem; font-weight:700; color:#cbd5e1;">🏆 التحكم بنتائج المتنافسين وحذفهم:</div>
+            <span class="q-count-badge" id="admin-scores-count">0 نتيجة</span>
+          </div>
+
+          <ul id="admin-scores-list" class="leaderboard-list" style="max-height: 360px; overflow-y: auto; padding-left:2px;">
+            <div class="empty-state">جارِ تحميل نتائج المسابقة... ⏳</div>
+          </ul>
         </div>
       </div>
     </div>
