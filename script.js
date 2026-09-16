@@ -70,41 +70,17 @@ const DEFAULT_QUESTIONS = {
     { q: "في أي مدينة أوروبية أُقيمت أول دورة ألعاب أولمبية في العصر الحديث عام 1896؟", opts: ["باريس", "أثينا", "لندن", "روما"], ans: "أثينا" }
   ],
   hard: [
-    { q: "ما هي الدولة التي تمتلك أكبر عدد من المناطق الزمنية؟", opts: ["روسيا", "الولايات المتحدة", "فرنسا", "المملكة المتحدة"], ans: "فرنسا" },
-    { q: "أي من المواد التالية تُعد أصلب مادة حيوية طبيعية في جسم الإنسان؟", opts: ["عظم الفخذ", "مينا الأسنان", "العاج", "صفيحة الجمجمة"], ans: "مينا الأسنان" },
-    { q: "ما المادة المسؤولة عن إعطاء كوكب المريخ لونه الأحمر المميز؟", opts: ["كبريتيد الحديد", "أكسيد الحديد الثلاثي (الصدأ)", "نترات الصوديوم", "كربونات النحاس"], ans: "أكسيد الحديد الثلاثي (الصدأ)" },
-    { q: "ما هي أطول معركة منفردة زمنياً وقعت خلال الحرب العالمية الأولى؟", opts: ["معركة السوم", "معركة غاليبولي", "معركة فيردان", "معركة المارن الأولى"], ans: "معركة فيردان" },
-    { q: "في أي محيط تقع نقطة 'نيمو' (الأبعد عن أي يابسة على وجه الأرض)؟", opts: ["المحيط الهادئ", "المحيط الأطلسي", "المحيط الهندي", "المحيط المتجمد الجنوبي"], ans: "المحيط الهادئ" },
-    { q: "ما الحرف الإنجليزي الوحيد الذي لا يظهر إطلاقاً في الجدول الدوري؟", opts: ["Q", "J", "Z", "X"], ans: "J" },
-    { q: "أي كائن حي لديه أطول فترة حمل بين جميع الثدييات البرية؟", opts: ["الفيل الآسيوي", "الفيل الأفريقي", "الكركدن", "الحوت الأزرق"], ans: "الفيل الأفريقي" },
-    { q: "ما هو الاسم العلمي لظاهرة مواجهة القمر للأرض بنفس الوجه دائماً؟", opts: ["الانحراف المداري", "الرنين المغناطيسي", "القفل المدي (Tidal locking)", "التباطؤ النسبي"], ans: "القفل المدي (Tidal locking)" },
-    { q: "من هو أول فيلسوف يوناني اقترح دوران الكواكب حول الشمس في القرن 3 ق.م؟", opts: ["أرسطو", "بطليموس", "أريستارخوس الساموسي", "إراتوستينس"], ans: "أريستارخوس الساموسي" },
-    { q: "ما هو البحر الوحيد على الأرض الذي لا يمتلك أي سواحل شاطئية برية؟", opts: ["بحر سارجاسو", "بحر البوران", "بحر آرال", "بحر بيوفورت"], ans: "بحر سارجاسو" },
-    { q: "ما هي عملة دولة بوتان الرسمية؟", opts: ["التوغروغ", "النغولتروم (Ngultrum)", "الكيات", "الريال"], ans: "النغولتروم (Ngultrum)" },
-    { q: "ما هو نوع الشحنة الكهربائية للجسيم دون الذري 'النيوترينو'؟", opts: ["موجبة (+1)", "سالبة (-1)", "متعادلة (صفر)", "شحنة متغيرة"], ans: "متعادلة (صفر)" },
-    { q: "كم دقيقة وثانية تقريباً يستغرق ضوء الشمس ليصل إلى الأرض؟", opts: ["8 دقائق و20 ثانية", "4 دقائق و10 ثوانٍ", "12 دقيقة و5 ثوانٍ", "لحظي"], ans: "8 دقائق و20 ثانية" },
-    { q: "من العالم الذي صاغ أول جدول دوري ورتبه وفق الأوزان الذرية؟", opts: ["جون دالتون", "ديمتري مندلييف", "روبرت بويل", "هنري موزلي"], ans: "ديمتري مندلييف" },
-    { q: "ما هي العاصمة الدستورية والقضائية الرسمية لدولة بوليفيا؟", opts: ["سانتا كروز", "كوتشابامبا", "سوكري", "بوتوسي"], ans: "سوكري" },
-    { q: "ما هي الدولة الحبيسة المستقلة الوحيدة في العالم المحاطة كلياً بأراضي دولة جنوب أفريقيا فقط؟", opts: ["إسواتيني", "ليسوتو", "بوتسوانا", "ناميبيا"], ans: "ليسوتو" },
-    { q: "ما هو المعدن النقي الوحيد في الطبيعة ذو اللون الأصفر غير الفضي بجانب عنصر النحاس؟", opts: ["الذهب", "البرونز", "البزموت", "التيتانيوم"], ans: "الذهب" },
-    { q: "كم عدد أزواج الأرجل لدى كائن الحريشة (أم أربعة وأربعين) في الواقع العلمي؟", opts: ["44 زوجاً بالضبط", "عدد فردي من الأزواج دائماً", "22 زوجاً ثابتاً", "عدد زوجي من الأزواج دائماً"], ans: "عدد فردي من الأزواج دائماً" },
-    { q: "ما هو الاسم التاريخي لمدينة طوكيو قبل أن تصبح عاصمة رسمية لليابان وتتغير تسميتها عام 1868؟", opts: ["كيوتو", "إيدو (Edo)", "أوساكا", "نارا"], ans: "إيدو (Edo)" },
-    { q: "ما هو الغاز النبيل الذي اشتق اسمه من كلمة يونانية تعني 'الكسول' لخموله الكيميائي التام؟", opts: ["النيون", "الكريبتون", "الآرجون (Argon)", "الزينون"], ans: "الآرجون (Argon)" },
-    { q: "أي دولة أو إمبراطورية تاريخية أسست فيالق المشاة النخبوية المعروفة بـ 'الإنكشارية'؟", opts: ["الدولة الأموية", "الدولة العباسية", "الدولة العثمانية", "الإمبراطورية الفارسية"], ans: "الدولة العثمانية" },
-    { q: "ما هو المسطح المائي المصنف علمياً كأكبر بحيرة مغلقة (بحر داخلي) على سطح الأرض؟", opts: ["بحر قزوين", "بحيرة سوبيريور", "بحيرة بايكال", "بحيرة فيكتوريا"], ans: "بحر قزوين" },
-    { q: "ما هو العضو البشري الداخلي الوحيد القادر على إعادة تجديد أنسجته وبنائها تلقائياً إذا فُقد ثلثا حجمه؟", opts: ["الطحال", "الكبد", "البنكرياس", "الرئة"], ans: "الكبد" },
-    { q: "من هو الفيزيائي الحائز على نوبل وصاحب 'مبدأ عدم اليقين أو الشك' (Uncertainty Principle) في ميكانيكا الكم؟", opts: ["إرفين شرودنغر", "فيرنر هايزنبرغ", "نيلز بور", "ماكس بلانك"], ans: "فيرنر هايزنبرغ" },
-    { q: "ما هي الدولة التي تمتلك أكبر عدد من الأهرامات الأثرية في العالم (تتجاوز 220 هرماً)؟", opts: ["مصر", "المكسيك", "السودان", "بيرو"], ans: "السودان" },
-    { q: "ما هي العملة الرسمية المتداولة في دولة جنوب أفريقيا؟", opts: ["الشلن", "الراند (ZAR)", "البيزو", "الكواشا"], ans: "الراند (ZAR)" },
-    { q: "أي كوكب في النظام الشمسي يدور حول نفسه من الشرق إلى الغرب في حركة تراجعية شاذة؟", opts: ["المريخ", "كوكب الزهرة", "المشتري", "نبتون"], ans: "كوكب الزهرة" },
-    { q: "ما هي أدنى نقطة يابسة جافة غير مغمورة بمياه المحيطات على سطح الأرض؟", opts: ["شواطئ البحر الميت", "منخفض القطارة", "وادي الموت", "منخفض تورفان"], ans: "شواطئ البحر الميت" },
-    { q: "ما هي المعركة البحرية الشهيرة التي حسمت سيادة بريطانيا البحرية وقُتل فيها القائد هوراشيو نيلسون عام 1805؟", opts: ["معركة واترلو", "معركة طرف الغار (Trafalgar)", "معركة يوتلاند", "معركة مِدواي"], ans: "معركة طرف الغار (Trafalgar)" },
-    { q: "ما هو أثقل وأعلى الغازات النبيلة المستقرة طبيعياً من حيث الكثافة والوزن الذري؟", opts: ["الآرجون", "الزينون", "الرادون (Radon)", "الكريبتون"], ans: "الرادون (Radon)" }
+    { q: "كم عدد اللجان الرئيسية المكونة لاتحاد الطلاب؟", opts: ["5 لجان", "7 لجان", "9 لجان", "11 لجنة"], ans: "7 لجان" },
+    { q: "أي لجنة بالاتحاد هي المسؤولة عن تنظيم المسابقات العلمية والمعارض التكنولوجية؟", opts: ["اللجنة الثقافية", "لجنة الجوالة", "اللجنة العلمية", "لجنة الأسر"], ans: "اللجنة العلمية" },
+    { q: "ما هو أعلى منصب قيادي من الطلاب داخل اتحاد طلاب الكلية؟", opts: ["أمين اللجنة العلمية", "رئيس الاتحاد", "رائد الاتحاد", "أمين الصندوق"], ans: "رئيس الاتحاد" },
+    { q: "في أي عام تأسست كلية الهندسة الإلكترونية بمنوف؟", opts: ["1965", "1970", "1975", "1980"], ans: "1975" },
+    { q: "كم عدد المكتبات بالكلية؟", opts: ["مكتبتان", "مكتبة واحدة", "3 مكتبات", "4 مكتبات"], ans: "مكتبتان" }
   ]
 };
 
 const POINTS = { easy: 1, medium: 3, hard: 5 };
 const LABELS = { easy: "سهل", medium: "متوسط", hard: "صعب" };
+const DEFAULT_SETTINGS = { timeLimit: 60, easyCount: 5, mediumCount: 5, hardCount: 5 };
 
 /* =========================================================
    2. مدير قاعدة البيانات المحلية والتزامن المباشر عبر المستخدمين
@@ -117,7 +93,8 @@ class DatabaseManager {
     this.listeners = [];
 
     this.db = {
-      questions: this.getLocalQuestions()
+      questions: this.getLocalQuestions(),
+      settings: this.getLocalSettings()
     };
 
     this.initBroadcastChannel();
@@ -139,6 +116,10 @@ class DatabaseManager {
     window.addEventListener('storage', (e) => {
       if (e.key === 'custom_questions_bank') {
         this.db.questions = this.getLocalQuestions();
+        this.notifyListeners();
+      }
+      if (e.key === 'quiz_settings') {
+        this.db.settings = this.getLocalSettings();
         this.notifyListeners();
       }
     });
@@ -201,8 +182,25 @@ class DatabaseManager {
     try { return JSON.parse(saved); } catch (e) { return DEFAULT_QUESTIONS; }
   }
 
+  getLocalSettings() {
+    const saved = localStorage.getItem("quiz_settings");
+    if (!saved) return DEFAULT_SETTINGS;
+    try {
+      const parsed = JSON.parse(saved);
+      return {
+        timeLimit: Math.max(10, Number(parsed.timeLimit) || 60),
+        easyCount: Math.max(0, Number(parsed.easyCount) ?? 5),
+        mediumCount: Math.max(0, Number(parsed.mediumCount) ?? 5),
+        hardCount: Math.max(0, Number(parsed.hardCount) ?? 5)
+      };
+    } catch (e) {
+      return DEFAULT_SETTINGS;
+    }
+  }
+
   saveToLocalStorage(db) {
-    localStorage.setItem("custom_questions_bank", JSON.stringify(db.questions));
+    if (db.questions) localStorage.setItem("custom_questions_bank", JSON.stringify(db.questions));
+    if (db.settings) localStorage.setItem("quiz_settings", JSON.stringify(db.settings));
   }
 
   broadcastLocalChange() {
@@ -234,6 +232,27 @@ class DatabaseManager {
     this.db.questions[diff].push({ q: qText, opts: opts, ans: correctAns });
     this.broadcastLocalChange();
   }
+
+  async updateSettings(newSettings) {
+    if (this.useServer) {
+      try {
+        const res = await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newSettings)
+        });
+        if (res.ok) {
+          const result = await res.json();
+          this.db = result.db;
+          this.notifyListeners();
+          return;
+        }
+      } catch (e) { console.error(e); }
+    }
+
+    this.db.settings = { ...this.db.settings, ...newSettings };
+    this.broadcastLocalChange();
+  }
 }
 
 // 3. تهيئة التطبيق
@@ -261,7 +280,7 @@ nameInput.addEventListener("input", () => {
   startBtn.disabled = nameInput.value.trim().length === 0;
 });
 
-// 5. إعداد وتوليد الأسئلة (5 أسئلة من كل مستوى = 15 سؤالاً)
+// 5. إعداد وتوليد الأسئلة حسب التوزيع المحدد في الإعدادات
 function pickRandom(arr, count) {
   if (!arr || arr.length === 0) return [];
   return [...arr].sort(() => 0.5 - Math.random()).slice(0, count);
@@ -269,25 +288,99 @@ function pickRandom(arr, count) {
 
 function prepareQuestions() {
   const bank = dbManager.db.questions || DEFAULT_QUESTIONS;
+  const settings = dbManager.db.settings || DEFAULT_SETTINGS;
+
+  const eCount = Number(settings.easyCount) ?? 5;
+  const mCount = Number(settings.mediumCount) ?? 5;
+  const hCount = Number(settings.hardCount) ?? 5;
+
   const eBank = bank.easy || DEFAULT_QUESTIONS.easy;
   const mBank = bank.medium || DEFAULT_QUESTIONS.medium;
   const hBank = bank.hard || DEFAULT_QUESTIONS.hard;
 
-  const e = pickRandom(eBank, Math.min(5, eBank.length)).map(q => ({ ...q, diff: "easy" }));
-  const m = pickRandom(mBank, Math.min(5, mBank.length)).map(q => ({ ...q, diff: "medium" }));
-  const h = pickRandom(hBank, Math.min(5, hBank.length)).map(q => ({ ...q, diff: "hard" }));
+  const e = pickRandom(eBank, Math.min(eCount, eBank.length)).map(q => ({ ...q, diff: "easy" }));
+  const m = pickRandom(mBank, Math.min(mCount, mBank.length)).map(q => ({ ...q, diff: "medium" }));
+  const h = pickRandom(hBank, Math.min(hCount, hBank.length)).map(q => ({ ...q, diff: "hard" }));
 
   return [...e, ...m, ...h].sort(() => 0.5 - Math.random());
 }
 
+// تحديث واجهة المستخدم فور تغيير الإعدادات
+function applySettingsToUI() {
+  const settings = dbManager.db.settings || DEFAULT_SETTINGS;
+  const easyCount = Number(settings.easyCount) ?? 5;
+  const mediumCount = Number(settings.mediumCount) ?? 5;
+  const hardCount = Number(settings.hardCount) ?? 5;
+  const totalQuestions = easyCount + mediumCount + hardCount;
+  const timeLimit = Number(settings.timeLimit) || 60;
+  const maxScore = (easyCount * POINTS.easy) + (mediumCount * POINTS.medium) + (hardCount * POINTS.hard);
+
+  const totalQSpan = document.getElementById("start-total-q");
+  const timeLimitSpan = document.getElementById("start-time-limit");
+  if (totalQSpan) totalQSpan.textContent = totalQuestions;
+  if (timeLimitSpan) timeLimitSpan.textContent = timeLimit;
+
+  const timerDisplay = document.getElementById("timer-display");
+  const totalQNum = document.getElementById("total-q-num");
+  const maxPossibleScore = document.getElementById("max-possible-score");
+  if (timerDisplay && !quizScreen.classList.contains("active")) timerDisplay.textContent = timeLimit;
+  if (totalQNum) totalQNum.textContent = totalQuestions;
+  if (maxPossibleScore) maxPossibleScore.textContent = maxScore;
+
+  const setTimeLimitInput = document.getElementById("set-time-limit");
+  const setEasyCountInput = document.getElementById("set-easy-count");
+  const setMediumCountInput = document.getElementById("set-medium-count");
+  const setHardCountInput = document.getElementById("set-hard-count");
+  if (setTimeLimitInput && document.activeElement !== setTimeLimitInput) setTimeLimitInput.value = timeLimit;
+  if (setEasyCountInput && document.activeElement !== setEasyCountInput) setEasyCountInput.value = easyCount;
+  if (setMediumCountInput && document.activeElement !== setMediumCountInput) setMediumCountInput.value = mediumCount;
+  if (setHardCountInput && document.activeElement !== setHardCountInput) setHardCountInput.value = hardCount;
+
+  updateAdminSettingsSummary();
+}
+
+function updateAdminSettingsSummary() {
+  const timeLimitVal = parseInt(document.getElementById("set-time-limit")?.value) || 0;
+  const easyVal = parseInt(document.getElementById("set-easy-count")?.value) || 0;
+  const mediumVal = parseInt(document.getElementById("set-medium-count")?.value) || 0;
+  const hardVal = parseInt(document.getElementById("set-hard-count")?.value) || 0;
+
+  const total = easyVal + mediumVal + hardVal;
+  const maxScore = (easyVal * POINTS.easy) + (mediumVal * POINTS.medium) + (hardVal * POINTS.hard);
+
+  const summaryBox = document.getElementById("settings-summary");
+  if (summaryBox) {
+    summaryBox.innerHTML = `
+      <span>إجمالي الأسئلة: <strong>${total} سؤال</strong></span>
+      <span>أقصى نقاط: <strong>${maxScore} نقطة</strong></span>
+    `;
+  }
+}
+
+dbManager.onUpdate(() => {
+  applySettingsToUI();
+});
+applySettingsToUI();
+
 // 6. تشغيل اللعبة
 startBtn.addEventListener("click", () => {
+  const settings = dbManager.db.settings || DEFAULT_SETTINGS;
   currentPlayer = nameInput.value.trim();
   document.getElementById("hud-player-name").textContent = currentPlayer;
-  score = 0; correctCount = 0; wrongCount = 0; currentQIndex = 0; remainingTime = 60;
+  score = 0; correctCount = 0; wrongCount = 0; currentQIndex = 0;
+  remainingTime = Number(settings.timeLimit) || 60;
+
   document.getElementById("hud-score").textContent = "0";
 
   quizQuestions = prepareQuestions();
+
+  if (quizQuestions.length === 0) {
+    alert("لا توجد أسئلة متوفرة حالياً حسب التوزيع المحدد!");
+    return;
+  }
+
+  document.getElementById("total-q-num").textContent = quizQuestions.length;
+
   startScreen.classList.remove("active");
   quizScreen.classList.add("active");
   renderQuestion();
@@ -364,13 +457,22 @@ function selectOption(selected, correct, diff, btnElement) {
 
 function finishGame() {
   clearInterval(timerInterval);
+  const settings = dbManager.db.settings || DEFAULT_SETTINGS;
+  const timeLimit = Number(settings.timeLimit) || 60;
+  const timeSpent = Math.max(0, timeLimit - remainingTime);
+
+  const easyCount = Number(settings.easyCount) ?? 5;
+  const mediumCount = Number(settings.mediumCount) ?? 5;
+  const hardCount = Number(settings.hardCount) ?? 5;
+  const maxScore = (easyCount * POINTS.easy) + (mediumCount * POINTS.medium) + (hardCount * POINTS.hard);
 
   document.getElementById("final-score-val").textContent = score;
+  document.getElementById("max-possible-score").textContent = maxScore;
   document.getElementById("stat-correct").textContent = correctCount;
   document.getElementById("stat-wrong").textContent = wrongCount;
-  document.getElementById("stat-time").textContent = `${60 - remainingTime}s`;
+  document.getElementById("stat-time").textContent = `${timeSpent}s`;
 
-  if (typeof confetti === "function" && score >= 14) {
+  if (typeof confetti === "function" && score >= Math.round(maxScore * 0.4)) {
     confetti({ particleCount: 70, spread: 60, origin: { y: 0.7 } });
   }
 
@@ -396,6 +498,60 @@ const adminLoginView = document.getElementById("admin-login-view");
 const adminPanelView = document.getElementById("admin-panel-view");
 const adminLogoutBtn = document.getElementById("admin-logout-btn");
 const toastAdmin = document.getElementById("toast-admin");
+
+// Admin Tabs Elements
+const tabBtnSettings = document.getElementById("tab-btn-settings");
+const tabBtnAddQ = document.getElementById("tab-btn-add-q");
+const tabSettingsView = document.getElementById("tab-settings-view");
+const tabAddQView = document.getElementById("tab-add-q-view");
+
+if (tabBtnSettings && tabBtnAddQ) {
+  tabBtnSettings.addEventListener("click", () => {
+    tabBtnSettings.classList.add("active");
+    tabBtnAddQ.classList.remove("active");
+    tabSettingsView.style.display = "block";
+    tabAddQView.style.display = "none";
+  });
+
+  tabBtnAddQ.addEventListener("click", () => {
+    tabBtnAddQ.classList.add("active");
+    tabBtnSettings.classList.remove("active");
+    tabSettingsView.style.display = "none";
+    tabAddQView.style.display = "block";
+  });
+}
+
+// Re-calculate summary on setting input change
+["set-time-limit", "set-easy-count", "set-medium-count", "set-hard-count"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener("input", updateAdminSettingsSummary);
+});
+
+// Save Admin Settings
+document.getElementById("save-settings-btn").addEventListener("click", () => {
+  const timeLimit = parseInt(document.getElementById("set-time-limit").value);
+  const easyCount = parseInt(document.getElementById("set-easy-count").value);
+  const mediumCount = parseInt(document.getElementById("set-medium-count").value);
+  const hardCount = parseInt(document.getElementById("set-hard-count").value);
+
+  if (isNaN(timeLimit) || timeLimit < 10) {
+    alert("يرجى إدخال وقت صحيح للجولة (10 ثوانٍ على الأقل)!");
+    return;
+  }
+
+  if (isNaN(easyCount) || easyCount < 0 || isNaN(mediumCount) || mediumCount < 0 || isNaN(hardCount) || hardCount < 0) {
+    alert("يرجى إدخال أعداد صحيحة للأسئلة!");
+    return;
+  }
+
+  if (easyCount + mediumCount + hardCount === 0) {
+    alert("يجب اختيار سؤال واحد على الأقل للمسابقة!");
+    return;
+  }
+
+  dbManager.updateSettings({ timeLimit, easyCount, mediumCount, hardCount });
+  showToast("تم حفظ إعدادات المسابقة بنجاح! ⚙️✨");
+});
 
 openAdminBtn.addEventListener("click", () => {
   adminModal.classList.add("open");
@@ -437,6 +593,7 @@ function showAdminLogin() {
 function showAdminPanel() {
   adminLoginView.style.display = "none";
   adminPanelView.style.display = "block";
+  applySettingsToUI();
 }
 
 document.getElementById("save-new-q-btn").addEventListener("click", () => {

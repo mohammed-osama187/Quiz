@@ -40,7 +40,9 @@
       </div>
 
       <h1>جاهز لاختبار معلوماتك؟</h1>
-      <p class="subtitle">15 سؤالاً عشوائياً متنوعاً، معك 60 ثانية لجمع أعلى مجموع نقاط!</p>
+      <p class="subtitle" id="start-screen-subtitle">
+        <span id="start-total-q">15</span> سؤالاً عشوائياً متنوعاً، معك <span id="start-time-limit">60</span> ثانية لجمع أعلى مجموع نقاط!
+      </p>
 
       <div class="input-group">
         <label for="player-name-input">ادخل اسمك للمنافسة:</label>
@@ -75,7 +77,7 @@
         <div class="diff-badge" id="q-diff-badge">سهل</div>
         <div style="font-size: 0.8rem; color:#a5b4fc; font-weight:700;" id="q-points-badge">+1 نقطة</div>
         <div style="font-size: 0.8rem; color:#94a3b8; font-weight:700;">
-          السؤال <span id="current-q-num">1</span> / 15
+          السؤال <span id="current-q-num">1</span> / <span id="total-q-num">15</span>
         </div>
       </div>
 
@@ -96,8 +98,10 @@
 
         <div class="score-banner">
           <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 2px;">مجموع النقاط النهائي</div>
-          <div class="final-score"><span id="final-score-val">0</span> <span style="font-size: 1.3rem; opacity: 0.75;">/
-              45</span></div>
+          <div class="final-score">
+            <span id="final-score-val">0</span>
+            <span style="font-size: 1.3rem; opacity: 0.75;">/ <span id="max-possible-score">45</span></span>
+          </div>
         </div>
 
         <div class="stats-card">
@@ -146,16 +150,56 @@
 
       <!-- State B: Admin Dashboard Controls -->
       <div id="admin-panel-view" style="display:none;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-          <h2 style="font-size:1.15rem;">إضافة سؤال جديد</h2>
-          <button id="admin-logout-btn"
-            style="background:none; border:none; color:#f87171; font-weight:700; cursor:pointer; font-size:0.82rem;">خروج</button>
+        <div class="admin-nav-bar">
+          <div class="admin-tabs">
+            <button id="tab-btn-settings" class="admin-tab-btn active">⚙️ إعدادات المسابقة</button>
+            <button id="tab-btn-add-q" class="admin-tab-btn">➕ إضافة سؤال</button>
+          </div>
+          <button id="admin-logout-btn" class="admin-logout-link">خروج</button>
         </div>
 
         <div id="toast-admin" class="toast-msg"></div>
 
-        <!-- Add Question Form -->
-        <div id="tab-add-q">
+        <!-- Tab 1: Quiz Settings -->
+        <div id="tab-settings-view">
+          <div class="input-group">
+            <label for="set-time-limit">⏳ وقت الجولة (بالثواني):</label>
+            <div class="input-wrapper">
+              <input type="number" id="set-time-limit" min="10" max="3600" placeholder="مثال: 60" />
+            </div>
+          </div>
+
+          <div style="margin-bottom: 12px; font-size: 0.85rem; font-weight: 700; color: #cbd5e1;">
+            🎯 توزيع عدد الأسئلة لكل مستوى:
+          </div>
+
+          <div class="settings-grid">
+            <div class="setting-card easy-card">
+              <label for="set-easy-count">🟢 سهل (1 نقطة)</label>
+              <input type="number" id="set-easy-count" min="0" max="100" placeholder="5" />
+            </div>
+            <div class="setting-card medium-card">
+              <label for="set-medium-count">🟡 متوسط (3 نقاط)</label>
+              <input type="number" id="set-medium-count" min="0" max="100" placeholder="5" />
+            </div>
+            <div class="setting-card hard-card">
+              <label for="set-hard-count">🔴 صعب (5 نقاط)</label>
+              <input type="number" id="set-hard-count" min="0" max="100" placeholder="5" />
+            </div>
+          </div>
+
+          <div class="settings-summary-box" id="settings-summary">
+            <span>إجمالي الأسئلة: <strong>15 سؤال</strong></span>
+            <span>أقصى نقاط: <strong>45 نقطة</strong></span>
+          </div>
+
+          <button id="save-settings-btn" class="btn btn-primary" style="margin-top: 10px;">
+            <span>حفظ إعدادات المسابقة</span>
+          </button>
+        </div>
+
+        <!-- Tab 2: Add Question Form -->
+        <div id="tab-add-q-view" style="display:none;">
           <div class="input-group">
             <label>المستوى:</label>
             <div class="input-wrapper">

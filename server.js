@@ -16,15 +16,18 @@ let sseClients = [];
 
 // Helper to read DB
 function readDB() {
+  const defaultSettings = { timeLimit: 60, easyCount: 5, mediumCount: 5, hardCount: 5 };
   try {
     if (!fs.existsSync(DB_PATH)) {
-      return { questions: { easy: [], medium: [], hard: [] } };
+      return { questions: { easy: [], medium: [], hard: [] }, settings: defaultSettings };
     }
     const content = fs.readFileSync(DB_PATH, 'utf-8');
-    return JSON.parse(content);
+    const parsed = JSON.parse(content);
+    if (!parsed.settings) parsed.settings = defaultSettings;
+    return parsed;
   } catch (err) {
     console.error('Error reading db.json:', err);
-    return { questions: { easy: [], medium: [], hard: [] } };
+    return { questions: { easy: [], medium: [], hard: [] }, settings: defaultSettings };
   }
 }
 
@@ -84,6 +87,22 @@ app.post('/api/questions', (req, res) => {
   db.questions[diff].push({ q, opts, ans });
   writeDB(db);
 
+  res.json({ success: true, db });
+});
+
+// Update settings (Time limit, Question count & distribution)
+app.post('/api/settings', (req, res) => {
+  const { timeLimit, easyCount, mediumCount, hardCount } = req.body;
+  const db = readDB();
+
+  db.settings = {
+    timeLimit: Math.max(10, Number(timeLimit) || 60),
+    easyCount: Math.max(0, Number(easyCount) || 0),
+    mediumCount: Math.max(0, Number(mediumCount) || 0),
+    hardCount: Math.max(0, Number(hardCount) || 0)
+  };
+
+  writeDB(db);
   res.json({ success: true, db });
 });
 
