@@ -17,12 +17,13 @@ import {
 
 // 1. ضع إعدادات Firebase الخاصة بمشروعك هنا (من Firebase Console):
 export const firebaseConfig = {
-  apiKey: "AIzaSyD-xxxxxxxxxxxxxxxxxxxx",
-  authDomain: "your-project.firebaseapp.com",
-  projectId: "your-project",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef"
+  apiKey: "AIzaSyAta_KP_rcdeaJtqsxuNebk4F4Bim2G2RU",
+  authDomain: "competition-dashboard-36620.firebaseapp.com",
+  projectId: "competition-dashboard-36620",
+  storageBucket: "competition-dashboard-36620.firebasestorage.app",
+  messagingSenderId: "461275601559",
+  appId: "1:461275601559:web:a805eb7673b7fb3ccba7d2",
+  measurementId: "G-KXPN4GG12S"
 };
 
 // التحقق من صحة مفاتيح Firebase
