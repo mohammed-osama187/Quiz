@@ -292,20 +292,27 @@ function saveLocalFallbackSettings(settings) {
   }
 }
 
-// دالة إخفاء انيميشن التحميل عند اكتمال جلب البيانات
+// تسجيل وقت بدء التحميل لضمان بقاء الأنيميشن ثانية واحدة (1000ms) على الأقل حتى لو وصلت البيانات فوراً
+const preloaderStartTime = Date.now();
+const MIN_PRELOADER_SHOW_TIME = 1000;
+
 let isPreloaderDismissed = false;
 export function hideAppPreloader() {
   if (isPreloaderDismissed) return;
-  const preloader = document.getElementById("app-preloader");
-  if (preloader) {
-    preloader.classList.add("fade-out");
-    setTimeout(() => {
-      preloader.style.display = "none";
-      isPreloaderDismissed = true;
-    }, 500);
-  } else {
-    isPreloaderDismissed = true;
-  }
+  isPreloaderDismissed = true;
+
+  const elapsed = Date.now() - preloaderStartTime;
+  const remainingWait = Math.max(0, MIN_PRELOADER_SHOW_TIME - elapsed);
+
+  setTimeout(() => {
+    const preloader = document.getElementById("app-preloader");
+    if (preloader) {
+      preloader.classList.add("fade-out");
+      setTimeout(() => {
+        preloader.style.display = "none";
+      }, 500);
+    }
+  }, remainingWait);
 }
 window.hideAppPreloader = hideAppPreloader;
 
@@ -337,8 +344,9 @@ if (typeof listenToSettings === "function") {
   });
 }
 
-// سقف زمني احتياطي لإخفاء انيميشن التحميل بعد 700ms لضمان سلاسة التجربة
-setTimeout(hideAppPreloader, 700);
+// سقف زمني احتياطي لإخفاء انيميشن التحميل بعد 2500ms لضمان عدم تعليق الصفحة
+setTimeout(hideAppPreloader, 2500);
+
 
 
 
