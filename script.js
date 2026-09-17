@@ -1676,6 +1676,14 @@ class DatabaseManager {
   }
 
   async updateSettings(newSettings) {
+    if (window.FirebaseService && typeof window.FirebaseService.updateSettings === "function") {
+      try {
+        await window.FirebaseService.updateSettings(newSettings);
+      } catch (e) {
+        console.error("Firebase updateSettings error:", e);
+      }
+    }
+
     if (this.useServer) {
       try {
         const res = await fetch('/api/settings', {
@@ -1695,6 +1703,7 @@ class DatabaseManager {
     this.db.settings = { ...this.db.settings, ...newSettings };
     this.broadcastLocalChange();
   }
+
 
   async editQuestion(diff, index, qText, opts, correctAns) {
     if (this.useServer) {

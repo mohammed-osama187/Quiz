@@ -10,12 +10,15 @@ import {
   addDoc,
   deleteDoc,
   doc,
+  setDoc,
+  getDoc,
   onSnapshot,
   query,
   orderBy,
   limit,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
 
 // 1. ضع إعدادات Firebase الخاصة بمشروعك هنا (من Firebase Console):
 export const firebaseConfig = {
@@ -180,11 +183,112 @@ function deleteLocalFallbackScore(scoreId) {
   }
 }
 
+// 5. دالة تحديث الإعدادات في قاعدة البيانات (تستخدمها من لوحة التحكم الخاص بك)
+export async function updateSettings(newQuestionsCount, newTime) {
+  let settingsPayload = {};
+  if (typeof newQuestionsCount === "object" && newQuestionsCount !== null) {
+    settingsPayload = { ...newQuestionsCount };
+  } else {
+    settingsPayload = {
+      questionsCount: Number(newQuestionsCount) || 15,
+      timeLimit: Number(newTime) || 60
+    };
+  }
+
+  if (db && isFirebaseConfigured()) {
+    try {
+      await setDoc(doc(db, "settings", "gameConfig"), settingsPayload, { merge: true });
+      console.log("✅ تم تحديث الإعدادات بنجاح في Firebase!");
+      saveLocalFallbackSettings(settingsPayload);
+      return true;
+    } catch (e) {
+      console.error("❌ خطأ في تحديث الإعدادات: ", e);
+      saveLocalFallbackSettings(settingsPayload);
+      return false;
+    }
+  } else {
+    saveLocalFallbackSettings(settingsPayload);
+    return true;
+  }
+}
+
+// 6. دالة مراقبة الإعدادات لايف (تشتغل تلقائياً عند أي شخص فاتح الموقع)
+export function listenToSettings(callback) {
+  if (db && isFirebaseConfigured()) {
+    try {
+      return onSnapshot(doc(db, "settings", "gameConfig"), (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const settings = docSnapshot.data();
+          console.log("⚡ تم استلام إعدادات جديدة من Firebase:", settings);
+          saveLocalFallbackSettings(settings);
+          if (typeof callback === "function") callback(settings, true);
+        } else {
+          const fallback = getLocalFallbackSettings();
+          if (typeof callback === "function") callback(fallback, false);
+        }
+      }, (err) => {
+        console.error("❌ خطأ في مراقبة إعدادات Firebase:", err);
+        const fallback = getLocalFallbackSettings();
+        if (typeof callback === "function") callback(fallback, false);
+      });
+    } catch (e) {
+      console.error("❌ خطأ في تشغيل مراقب الإعدادات:", e);
+      const fallback = getLocalFallbackSettings();
+      if (typeof callback === "function") callback(fallback, false);
+      return () => {};
+    }
+  } else {
+    const notifyLocal = () => {
+      const fallback = getLocalFallbackSettings();
+      if (typeof callback === "function") callback(fallback, false);
+    };
+    notifyLocal();
+    window.addEventListener("localSettingsChanged", notifyLocal);
+    return () => window.removeEventListener("localSettingsChanged", notifyLocal);
+  }
+}
+
+// دوال التخزين الاحتياطي المحلي للإعدادات
+function getLocalFallbackSettings() {
+  try {
+    const saved = localStorage.getItem("quiz_settings");
+    return saved ? JSON.parse(saved) : { timeLimit: 60, easyCount: 5, mediumCount: 5, hardCount: 5, questionsCount: 15 };
+  } catch (e) {
+    return { timeLimit: 60, easyCount: 5, mediumCount: 5, hardCount: 5, questionsCount: 15 };
+  }
+}
+
+function saveLocalFallbackSettings(settings) {
+  try {
+    const current = getLocalFallbackSettings();
+    const updated = { ...current, ...settings };
+    localStorage.setItem("quiz_settings", JSON.stringify(updated));
+    window.dispatchEvent(new Event("localSettingsChanged"));
+  } catch (e) {
+    console.error("Local settings save error:", e);
+  }
+}
+
 // تصدير كائن عام لتوفير التوافق المباشر للـ script العادي
 window.FirebaseService = {
   submitScore,
   deleteScore,
   listenToLeaderboard,
+  updateSettings,
+  listenToSettings,
   isFirebaseConfigured,
   firebaseConfig
 };
+
+// تشغيل الاستماع المباشر للإعدادات فور تحميل السكريبت
+if (typeof listenToSettings === "function") {
+  listenToSettings((settings) => {
+    if (window.dbManager && typeof window.dbManager.updateSettings === "function") {
+      window.dbManager.db.settings = { ...window.dbManager.db.settings, ...settings };
+      if (typeof window.dbManager.notifyListeners === "function") {
+        window.dbManager.notifyListeners();
+      }
+    }
+  });
+}
+
