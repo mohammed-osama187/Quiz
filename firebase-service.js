@@ -103,6 +103,12 @@ export async function deleteScore(scoreId) {
 
 // 4. الاستماع للتغيرات في لوحة المتصدرين لحظة بلحظة (Live Leaderboard)
 export function listenToLeaderboard(callback, maxItems = 50) {
+  // 1. أول ما الصفحة تفتح، جرب اعرض القديم المحفوظ فورا (عشان ميعرضش فراغ أو يظهر متأخر)
+  const cachedScores = getLocalFallbackScores();
+  if (cachedScores && cachedScores.length > 0 && typeof callback === "function") {
+    callback(cachedScores, false);
+  }
+
   if (db && isFirebaseConfigured()) {
     try {
       const q = query(
@@ -124,6 +130,11 @@ export function listenToLeaderboard(callback, maxItems = 50) {
               timestamp: data.timestamp ? data.timestamp.toDate() : new Date()
             });
           });
+          // حفظها في LocalStorage للتسريع في الفتح القادم
+          try {
+            localStorage.setItem("quiz_local_leaderboard", JSON.stringify(list));
+          } catch (e) {}
+
           callback(list, true); // true = live from Firebase
         },
         (error) => {
@@ -214,20 +225,31 @@ export async function updateSettings(newQuestionsCount, newTime) {
 
 // 6. دالة مراقبة الإعدادات لايف (تشتغل تلقائياً عند أي شخص فاتح الموقع)
 export function listenToSettings(callback) {
+  // 1. أول ما الصفحة تفتح، جرب اعرض القديم المحفوظ فوراً (عشان ميعرضش قيم غلط أو فاضية في الأول)
+  const cachedSettings = getLocalFallbackSettings();
+  if (cachedSettings && typeof callback === "function") {
+    callback(cachedSettings, false);
+  }
+
+  // 2. اسحب البيانات الحقيقية لايف من فايربيس
   if (db && isFirebaseConfigured()) {
     try {
       return onSnapshot(doc(db, "settings", "gameConfig"), (docSnapshot) => {
         if (docSnapshot.exists()) {
           const settings = docSnapshot.data();
-          console.log("⚡ تم استلام إعدادات جديدة من Firebase:", settings);
+          
+          // احفظها في الـ LocalStorage عشان تظهر فوراً المرة الجاية
           saveLocalFallbackSettings(settings);
+
+          // طبق الإعدادات الحقيقية في الواجهة
           if (typeof callback === "function") callback(settings, true);
+          console.log("تم تحديث الإعدادات بنجاح من Firebase", settings);
         } else {
           const fallback = getLocalFallbackSettings();
           if (typeof callback === "function") callback(fallback, false);
         }
-      }, (err) => {
-        console.error("❌ خطأ في مراقبة إعدادات Firebase:", err);
+      }, (error) => {
+        console.error("خطأ في جلب الإعدادات من Firebase:", error);
         const fallback = getLocalFallbackSettings();
         if (typeof callback === "function") callback(fallback, false);
       });
@@ -251,18 +273,19 @@ export function listenToSettings(callback) {
 // دوال التخزين الاحتياطي المحلي للإعدادات
 function getLocalFallbackSettings() {
   try {
-    const saved = localStorage.getItem("quiz_settings");
-    return saved ? JSON.parse(saved) : { timeLimit: 60, easyCount: 5, mediumCount: 5, hardCount: 5, questionsCount: 15 };
-  } catch (e) {
-    return { timeLimit: 60, easyCount: 5, mediumCount: 5, hardCount: 5, questionsCount: 15 };
-  }
+    const raw = localStorage.getItem('gameSettings') || localStorage.getItem('quiz_settings');
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { timeLimit: 60, questionsCount: 15, easyCount: 5, mediumCount: 5, hardCount: 5 };
 }
 
 function saveLocalFallbackSettings(settings) {
   try {
     const current = getLocalFallbackSettings();
     const updated = { ...current, ...settings };
-    localStorage.setItem("quiz_settings", JSON.stringify(updated));
+    const str = JSON.stringify(updated);
+    localStorage.setItem('gameSettings', str);
+    localStorage.setItem('quiz_settings', str);
     window.dispatchEvent(new Event("localSettingsChanged"));
   } catch (e) {
     console.error("Local settings save error:", e);
@@ -289,6 +312,10 @@ if (typeof listenToSettings === "function") {
         window.dbManager.notifyListeners();
       }
     }
+    if (typeof window.applySettingsToUI === "function") {
+      window.applySettingsToUI(settings);
+    }
   });
 }
+
 

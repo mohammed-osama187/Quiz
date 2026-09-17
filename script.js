@@ -1803,12 +1803,12 @@ function prepareQuestions() {
 }
 
 // تحديث واجهة المستخدم فور تغيير الإعدادات
-function applySettingsToUI() {
-  const settings = dbManager.db.settings || DEFAULT_SETTINGS;
+function applySettingsToUI(customSettings) {
+  const settings = customSettings || (dbManager && dbManager.db && dbManager.db.settings) || DEFAULT_SETTINGS;
   const easyCount = Number(settings.easyCount) ?? 5;
   const mediumCount = Number(settings.mediumCount) ?? 5;
   const hardCount = Number(settings.hardCount) ?? 5;
-  const totalQuestions = easyCount + mediumCount + hardCount;
+  const totalQuestions = Number(settings.questionsCount) || (easyCount + mediumCount + hardCount);
   const timeLimit = Number(settings.timeLimit) || 60;
   const maxScore = (easyCount * POINTS.easy) + (mediumCount * POINTS.medium) + (hardCount * POINTS.hard);
 
@@ -1817,10 +1817,16 @@ function applySettingsToUI() {
   if (totalQSpan) totalQSpan.textContent = totalQuestions;
   if (timeLimitSpan) timeLimitSpan.textContent = timeLimit;
 
+  // دعم العناصر ذات المعرفات المباشرة (questions-num و timer)
+  const questionsElement = document.getElementById("questions-num");
+  const timerElement = document.getElementById("timer");
+  if (questionsElement) questionsElement.textContent = totalQuestions;
+  if (timerElement) timerElement.textContent = timeLimit;
+
   const timerDisplay = document.getElementById("timer-display");
   const totalQNum = document.getElementById("total-q-num");
   const maxPossibleScore = document.getElementById("max-possible-score");
-  if (timerDisplay && !quizScreen.classList.contains("active")) timerDisplay.textContent = timeLimit;
+  if (timerDisplay && quizScreen && !quizScreen.classList.contains("active")) timerDisplay.textContent = timeLimit;
   if (totalQNum) totalQNum.textContent = totalQuestions;
   if (maxPossibleScore) maxPossibleScore.textContent = maxScore;
 
@@ -1835,6 +1841,9 @@ function applySettingsToUI() {
 
   updateAdminSettingsSummary();
 }
+
+window.applySettingsToUI = applySettingsToUI;
+
 
 function updateAdminSettingsSummary() {
   const timeLimitVal = parseInt(document.getElementById("set-time-limit")?.value) || 0;
