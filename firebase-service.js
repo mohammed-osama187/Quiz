@@ -292,6 +292,23 @@ function saveLocalFallbackSettings(settings) {
   }
 }
 
+// دالة إخفاء انيميشن التحميل عند اكتمال جلب البيانات
+let isPreloaderDismissed = false;
+export function hideAppPreloader() {
+  if (isPreloaderDismissed) return;
+  const preloader = document.getElementById("app-preloader");
+  if (preloader) {
+    preloader.classList.add("fade-out");
+    setTimeout(() => {
+      preloader.style.display = "none";
+      isPreloaderDismissed = true;
+    }, 500);
+  } else {
+    isPreloaderDismissed = true;
+  }
+}
+window.hideAppPreloader = hideAppPreloader;
+
 // تصدير كائن عام لتوفير التوافق المباشر للـ script العادي
 window.FirebaseService = {
   submitScore,
@@ -299,6 +316,7 @@ window.FirebaseService = {
   listenToLeaderboard,
   updateSettings,
   listenToSettings,
+  hideAppPreloader,
   isFirebaseConfigured,
   firebaseConfig
 };
@@ -315,7 +333,12 @@ if (typeof listenToSettings === "function") {
     if (typeof window.applySettingsToUI === "function") {
       window.applySettingsToUI(settings);
     }
+    hideAppPreloader();
   });
 }
+
+// سقف زمني احتياطي لإخفاء انيميشن التحميل بعد 700ms لضمان سلاسة التجربة
+setTimeout(hideAppPreloader, 700);
+
 
 

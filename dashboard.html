@@ -208,8 +208,25 @@
 </head>
 
 <body>
+  <!-- Initial Loading Preloader Overlay -->
+  <div id="app-preloader" class="app-preloader">
+    <div class="preloader-content">
+      <div class="preloader-logo-wrap">
+        <img src="./logo-union.png" alt="الشعار" class="preloader-logo" />
+        <div class="preloader-ring"></div>
+        <div class="preloader-glow"></div>
+      </div>
+      <h3 class="preloader-title">لوحة المتصدرين الحية</h3>
+      <p class="preloader-subtitle">جارِ الاتصال بـ Firebase Firestore والتحميل... <span class="loading-dots"><span>.</span><span>.</span><span>.</span></span></p>
+      <div class="preloader-bar">
+        <div class="preloader-bar-fill"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="blob blob-1"></div>
   <div class="blob blob-2"></div>
+
 
   <div class="dashboard-container">
     <div class="dash-header">
