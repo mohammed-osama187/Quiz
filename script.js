@@ -987,13 +987,60 @@ function renderAdminScoresList(scores) {
   });
 }
 
-// بدء التحديث الحي للوحة المتصدرين فور تحميل الصفحة
+/* =========================================================
+   9. مراقب حالة الاتصال بالإنترنت (Offline / Online Monitor)
+   ========================================================= */
+function initNetworkStatusMonitor() {
+  let toastContainer = document.getElementById("network-status-toast");
+  if (!toastContainer) {
+    toastContainer = document.createElement("div");
+    toastContainer.id = "network-status-toast";
+    toastContainer.className = "network-toast-banner";
+    document.body.appendChild(toastContainer);
+  }
+
+  let hideTimer = null;
+
+  function showNetworkToast(message, type) {
+    if (hideTimer) clearTimeout(hideTimer);
+
+    toastContainer.className = `network-toast-banner ${type} show`;
+    toastContainer.innerHTML = message;
+
+    if (type === "online") {
+      hideTimer = setTimeout(() => {
+        toastContainer.classList.remove("show");
+      }, 3500);
+    }
+  }
+
+  window.addEventListener("offline", () => {
+    console.log("تم فقدان الاتصال بالإنترنت!");
+    showNetworkToast("📡 ⚠️ تم فقدان الاتصال بالإنترنت! قد تظهر بعض البيانات غير محدثة.", "offline");
+  });
+
+  window.addEventListener("online", () => {
+    console.log("تم استعادة الاتصال بنجاح.");
+    showNetworkToast("⚡ ✅ تم استعادة الاتصال بالإنترنت بنجاح.", "online");
+  });
+
+  if (!navigator.onLine) {
+    console.log("تم فقدان الاتصال بالإنترنت!");
+    showNetworkToast("📡 ⚠️ أنت غير متصل بالإنترنت حالياً.", "offline");
+  }
+}
+
+// بدء التحديث الحي وترصّد حالة الاتصال فور تحميل الصفحة
 document.addEventListener("DOMContentLoaded", () => {
   initLeaderboardListener();
+  initNetworkStatusMonitor();
 });
+
 // تشغيل احتياطي مباشر في حال كانت DOM محملة بالفعل
 setTimeout(() => {
   initLeaderboardListener();
+  initNetworkStatusMonitor();
 }, 200);
+
 
 
