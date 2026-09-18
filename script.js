@@ -1773,9 +1773,31 @@ const resultScreen = document.getElementById("result-screen");
 const nameInput = document.getElementById("player-name-input");
 const startBtn = document.getElementById("start-btn");
 
-nameInput.addEventListener("input", () => {
-  startBtn.disabled = nameInput.value.trim().length === 0;
-});
+function isTwoPartName(name) {
+  if (!name) return false;
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  return parts.length >= 2 && parts.every(p => p.length >= 2);
+}
+
+function validatePlayerNameInput() {
+  const val = nameInput.value;
+  const isValid = isTwoPartName(val);
+  startBtn.disabled = !isValid;
+
+  const hintEl = document.getElementById("name-input-hint");
+  if (hintEl) {
+    if (val.trim().length === 0) {
+      hintEl.style.display = "none";
+    } else if (!isValid) {
+      hintEl.style.display = "block";
+      hintEl.textContent = "⚠️ يرجى إدخال الاسم الثنائي كاملاً (كلمتين على الأقل، مثال: محمد أحمد)";
+    } else {
+      hintEl.style.display = "none";
+    }
+  }
+}
+
+nameInput.addEventListener("input", validatePlayerNameInput);
 
 // 5. إعداد وتوليد الأسئلة حسب التوزيع المحدد في الإعدادات
 function pickRandom(arr, count) {
@@ -1870,8 +1892,14 @@ applySettingsToUI();
 
 // 6. تشغيل اللعبة
 startBtn.addEventListener("click", () => {
+  if (!isTwoPartName(nameInput.value)) {
+    alert("⚠️ يرجى إدخال الاسم الثنائي كاملاً (مثال: محمد أحمد) للمشاركة في التحدي!");
+    return;
+  }
+
   const settings = dbManager.db.settings || DEFAULT_SETTINGS;
   currentPlayer = nameInput.value.trim();
+
   document.getElementById("hud-player-name").textContent = currentPlayer;
   score = 0; correctCount = 0; wrongCount = 0; currentQIndex = 0;
   remainingTime = Number(settings.timeLimit) || 60;
